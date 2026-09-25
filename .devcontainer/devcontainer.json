@@ -1,17 +1,13 @@
 {
   "name": "upango",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
-  "features": {
-    "ghcr.io/devcontainers-contrib/features/pnpm:2": {}
-  },
-  "postCreateCommand": "pnpm install",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
+  "postCreateCommand": "npm install",
   "forwardPorts": [3000, 9293],
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "Prisma.prisma"
+        "esbenp.prettier-vscode"
       ]
     }
   }

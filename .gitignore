@@ -23,16 +23,20 @@ yarn-error.log*
 /public/build/
 /public/_dev
 /app/public/build
-/prisma/dev.sqlite
-/prisma/dev.sqlite-journal
-database.sqlite
 
 .env
 .env.*
 !.env.example
-
+.env.deploy
 
 /extensions/*/dist
+/extensions/*/assets/selector-punto.js
+/extensions/*/assets/selector-punto.js.map
+/deploy/dist
+/coverage
+
+__pycache__/
+*.pyc
 
 # Ignore shopify files created during app dev
 .shopify/*
