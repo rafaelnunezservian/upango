@@ -5,8 +5,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 7 — US-5 (T096–T109).
-- **Siguiente sesión**: Phase 8 — User Story 6 (T110–T122).
+- **Última fase completada**: Phase 8 — US-6 (T110–T122; T123 pendiente de plataforma).
+- **Siguiente sesión**: Phase 10 — Docs y calidad (T127–T130, T134, T135).
 
 ## Plan de sesiones
 
@@ -20,8 +20,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 6 | Phase 5 — US-3 Functions | T078–T091 | ✅ (T090 pendiente de plataforma) |
 | 7 | Phase 6 — US-4 | T092–T095 | ✅ |
 | 8 | Phase 7 — US-5 | T096–T109 | ✅ |
-| 9 | Phase 8 — US-6 | T110–T122 | ⏳ (siguiente) |
-| 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ⏳ |
+| 9 | Phase 8 — US-6 | T110–T122 | ✅ (T123 pendiente de plataforma) |
+| 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ⏳ (siguiente) |
 | 11 | Cierre: `/speckit-analyze` + `/speckit-converge` | — | ⏳ |
 
 ## Cómo trabaja cada sesión
@@ -58,6 +58,18 @@ que necesita plataforma queda en la lista de abajo.
   falta confirmar en una tienda real que el comerciante puede agregarla y que el bloque "Punto de recogida"
   aparece con los 7 atributos reales de un pedido resolado (en la sesión cloud solo se pudo simular
   `shopify.attributes`/`shopify.i18n` con dobles de test).
+- T123 (validar `GET /healthz` end-to-end tras un despliegue real en GCP): no se pudo completar en la sesión
+  cloud (sin cuenta/proyecto de Google Cloud, ver sesión 9). Falta, con un proyecto GCP real: `npm run deploy
+  -- --proveedor gcp` completo y luego `curl https://<url-del-servicio>/healthz` (o el paso equivalente del
+  checklist E2E del Anexo B).
+- CLI de despliegue (`deploy/`, sesión 9): se probó `--dry-run` de punta a punta contra el CLI real (arma
+  todos los comandos `gcloud`, calcula la URL de Cloud Run, códigos de salida 0/1/2/4 verificados a mano),
+  pero nunca contra un proyecto GCP real ni contra un `docker build` real (el contenedor de la sesión cloud
+  no tiene el daemon de Docker corriendo — `docker info` falla con "no such file or directory" en
+  `/var/run/docker.sock` — así que el `Dockerfile` solo se validó por lectura, no compilándolo). Falta, con
+  Docker y un proyecto GCP reales: `docker build .` (confirmar el objetivo de ≤250 MB del NFR de la imagen,
+  §20.2) y `npm run deploy -- --proveedor gcp` (sin `--dry-run`) de punta a punta en un proyecto vacío
+  (Independent Test de la Phase 8).
 - Página de admin (T096–T109, ver sesión 8): `GatewayPersonalizacionesShopify` usa `deliveryCustomizations`,
   `deliveryCustomizationCreate`/`Update` y `ConsultaConfiguracionTiendaShopify` usa
   `metaobjectDefinitionByType` sin poder validar los campos (`functionHandle`, `shopifyFunction.appKey`,
@@ -389,3 +401,84 @@ que necesita plataforma queda en la lista de abajo.
   `obtenerEstadoConfiguracion.test.ts` y 5 de `app._index.test.tsx`), `npm run typecheck` y `npm run lint`
   sin errores. No se pudo probar "Activar" ni los deep links contra una tienda real (sin Partners/dev store
   en la sesión cloud) — queda para la fase de testing, agregado arriba.
+
+### Sesión 9 — Phase 8 (US-6)
+
+- **`Dockerfile`/`.dockerignore` (T110/T111) ya existían desde el scaffold (sesión 1, commit `01fc05e`)** y,
+  revisados contra el §20.2 literal, ya cumplían todo lo pedido (multi-stage `node:24-alpine`, `npm ci`
+  limitado a la raíz + `packages/contratos/package.json`, `NODE_ENV=production` + deps de producción en la
+  etapa final, `USER node`, `EXPOSE 8080`, sin Prisma, exclusiones correctas); no hizo falta tocarlos, solo
+  marcarlos `[x]`. Igual que en sesiones anteriores con `deploy`, `npm ci` con `"workspaces":
+  ["packages/*","extensions/*","deploy"]` en `package.json` no falla aunque el contexto de Docker no tenga
+  copiados `packages/selector-carrito`, `extensions/*` ni `deploy/`: npm ignora en silencio los workspaces
+  declarados que no existen en disco, no son un error.
+- **`package.json` raíz ya traía los scripts `deploy`/`deploy:shopify` (T122) desde el scaffold**, apuntando
+  a `tsx deploy/src/cli.ts` (que esta sesión recién crea) y a `shopify app deploy`; solo se verificaron, sin
+  cambios.
+- **`deploy/` como workspace real**: `package.json` raíz ya declaraba `"deploy"` en `workspaces` desde el
+  scaffold (anticipando esta fase), pero el directorio no existía. Se agregó `deploy/package.json` (mismo
+  patrón que `packages/contratos` y `packages/selector-carrito`: `type: module`, scripts `typecheck`/`test`),
+  `deploy/tsconfig.json` (extiende `tsconfig.base.json`, `types: ["node"]`) y `deploy/vitest.config.ts`; se
+  agregó `"deploy/vitest.config.ts"` a `vitest.workspace.ts` a mano porque `"deploy"` no es un glob (a
+  diferencia de `packages/*`/`extensions/*`) — sin este paso `npm test` de la raíz no corría los tests de
+  `deploy/`.
+- **`deploy/src/dominio/` (esquema zod + errores + pasos) no es una tarea numerada**, igual que otras piezas
+  de "pegamento" de sesiones anteriores (p. ej. `contenedor.crearEscritorPuntos` en la sesión 2): T112 solo
+  pide los *puertos* (interfaces de CT-10), pero T115 (orquestador) necesita validar `deploy.config.json` y
+  las 4 clases de error del §20.3 en algún lado, así que se crearon junto con T112 antes de tocar el
+  orquestador.
+- **`ConfigProveedor` (bloque `proveedores.<nombre>`) es opaco para el esquema neutral y para el
+  orquestador a propósito**: `deploy/src/dominio/configDespliegue.ts` valida `proveedores` como
+  `Record<string, Record<string, unknown>>` sin conocer los campos de `gcp`; cada proveedor valida su propio
+  bloque (`deploy/src/proveedores/gcp/config.ts` con su propio esquema zod). Es lo que permite que "agregar
+  un proveedor" (§20.7) no toque el esquema neutral ni el orquestador — la alternativa (un esquema único que
+  conociera `gcp` con campos opcionales para futuros proveedores) hubiera violado el OCP que pide la
+  constitución para esta pieza.
+- **Comandos `gcloud` sin `--project=`**: el §20.4 literal no incluye esa flag en ningún comando de la tabla
+  (asume que el operador ya corrió `gcloud config set project <id>` en el paso 1 del §20.5); `ProveedorGcp`
+  reproduce los comandos tal como están en la tabla (mismo orden de flags, mismos nombres) para que los tests
+  de "comandos exactos" (T118) verifiquen contra el contrato literal y no contra una flag inventada.
+- **Dry-run e idempotencia, una decisión de diseño explícita**: en `--dry-run`, `EjecutorComandosNode` no
+  ejecuta nada de verdad (ni siquiera los `describe` de solo lectura que deciden si hace falta crear un
+  recurso), así que no hay forma honesta de saber si el repositorio/base/cuenta/secreto ya existen.
+  `ProveedorGcp.existeOSimulado()` trata `ctx.simulacion === true` como "no existe siempre", para mostrar el
+  comando de creación de más antes que ocultarlo: el escenario documentado en el README (§20.5, paso 4) es
+  justamente el de un proyecto vacío donde `--dry-run` debe mostrar la secuencia completa. En un despliegue
+  real posterior al primero, esto no aplica (`ctx.simulacion === false` usa el resultado real de `describe`).
+- **`SHOPIFY_APP_URL` puede llegar vacía; las demás `variablesDesdeEntorno` no**: es la única variable de
+  `deploy.config.json#variablesDesdeEntorno` que el operador no tiene por qué conocer antes del primer
+  despliegue (§20.4, "el backend necesita `SHOPIFY_APP_URL` para arrancar… la CLI la calcula"). `cli.ts` deja
+  pasar `""` solo para ese nombre; `ProveedorGcp.desplegarServicio()` la completa con la URL determinista de
+  Cloud Run (`https://<servicio>-<número-de-proyecto>.<región>.run.app`) únicamente si sigue vacía en ese
+  momento, y el orquestador decide llamar a `actualizarVariables` en el paso 7 comparando esa URL contra
+  `resultado.url` real.
+- **`--paso servicio` construye la imagen antes de desplegar**: `ProveedorDespliegue.desplegarServicio`
+  exige un `ReferenciaImagen` como parámetro y el CT-10 no da otra forma de obtenerlo sin pasar por
+  `construirImagen`; se decidió que el paso aislado `servicio` encadene `construirImagen` +
+  `desplegarServicio` (nunca solo lectura de una imagen ya construida) para no inventar un método fuera del
+  contrato. Cada etiqueta genera una imagen nueva (§20.4), así que repetir el build no es incorrecto, solo
+  consume minutos de Cloud Build de más si se usa `--paso servicio` de forma aislada.
+- **`EjecutorComandosNode` nunca rechaza la promesa**: el primer intento dejaba que el evento `"error"` de
+  `child_process` (por ejemplo `ENOENT` si `gcloud` no está instalado) hiciera `reject()`, lo que rompía
+  `verificarPrerrequisitos` con un error nativo sin envolver en `PrerrequisitoError` (código de salida 1 en
+  vez de 2). Se corrigió para que ese caso resuelva con `{ codigo: 127, ... }` como cualquier otro fallo de
+  proceso, cumpliendo el contrato de `EjecutorComandos` ("siempre resuelve") y dejando que cada proveedor
+  interprete el código de salida. Verificado a mano invocando el CLI real sin `gcloud` instalado en la sesión
+  cloud (ver más abajo).
+- **`no-unused-vars` de ESLint no ignora el prefijo `_` en parámetros** (a diferencia del `noUnusedParameters`
+  de `tsc`, que si lo ignora salvo en *parameter properties*): el esqueleto `ProveedorPlantilla` y el
+  proveedor falso de `OrquestadorDespliegue.test.ts` se escribieron sin declarar los parámetros que no usan
+  (TypeScript permite implementar un método de una interfaz con menos parámetros que la firma) en vez de
+  prefijarlos con `_`, porque esto último seguía marcando error en `npm run lint` aunque `tsc --noEmit`
+  pasara.
+- **Probado a mano de punta a punta contra el CLI real** (sin proyecto GCP, ver el punto de "pendiente de
+  plataforma" de arriba): `npm run deploy -- --proveedor gcp --dry-run` con variables de entorno de prueba
+  imprime la secuencia completa de comandos `gcloud` sin ejecutarlos y termina en código 0; sin
+  `--proveedor` → mensaje + código 1; `--proveedor azure` (no registrado) → código 4 citando la guía del
+  README; sin el secreto `SHOPIFY_API_SECRET` en el entorno → código 1; `--paso no-existe` → código 1;
+  `--paso verificar` sin `gcloud` instalado en el contenedor → código 2 (`PrerrequisitoError`).
+- Verificado: `npm test` (232 tests OK, 6 omitidos — suma los 38 nuevos de `deploy/`: 15 de
+  `OrquestadorDespliegue.test.ts`, 19 de `ProveedorGcp.test.ts`, 4 de `EjecutorComandosNode.test.ts`),
+  `npm run typecheck` (raíz y `--workspace=deploy`) y `npm run lint` sin errores. No se pudo compilar el
+  `Dockerfile` (sin daemon de Docker en la sesión cloud) ni desplegar contra un proyecto GCP real — T123 y el
+  resto quedan en "Pendiente de validar en plataforma" arriba.
