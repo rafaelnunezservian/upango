@@ -1,0 +1,41 @@
+# App de desarrollo (DEC-18). `shopify app dev` SIEMPRE usa esta
+# configuración (`shopify app dev --config dev`), nunca la de producción.
+# client_id: el que generó `shopify app init` / `shopify app config link`
+# para la app de desarrollo en el Partners Dashboard.
+client_id = "afb1f67d128041a5e5ded40611938558"
+name = "Puntos de Recogida (dev)"
+application_url = "https://example.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
+
+[access_scopes]
+scopes = "write_delivery_customizations,write_app_proxy"
+
+[auth]
+redirect_urls = [ "https://example.com/auth/callback" ]
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+  uri = "/webhooks/compliance"
+
+[app_proxy]
+url = "/proxy"
+prefix = "apps"
+subpath = "puntos-recogida"
+
+# La definición [metaobjects.app.punto_recogida] completa (CT-01) se agrega
+# en la Fase 3 (US-1, T041), en sincronía con shopify.app.toml (T040).

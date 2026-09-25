@@ -1,5 +1,6 @@
 {
   "name": "upango",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "react-router build && npm run build:embed",
@@ -27,13 +28,15 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@google-cloud/firestore": "^7.11.0",
+    "@google-cloud/firestore": "^9.2.0",
     "@react-router/dev": "7.18.2",
     "@react-router/fs-routes": "7.18.2",
     "@react-router/node": "7.18.2",
     "@react-router/serve": "7.18.2",
     "@shopify/app-bridge-react": "^4.2.4",
     "@shopify/shopify-app-react-router": "^3.0.0",
+    "@shopify/shopify-app-session-storage": "^7.0.0",
+    "@shopify/shopify-app-session-storage-memory": "^8.0.0",
     "@puntos-recogida/contratos": "*",
     "isbot": "^5.1.31",
     "react": "^18.3.1",
@@ -85,10 +88,15 @@
   "resolutions": {
     "qs": "^6.16.0"
   },
-  "pnpm": {
-    "overrides": {
-      "qs": "^6.16.0"
-    }
-  },
-  "author": "isaac"
+  "author": "isaac",
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "protobufjs@7.6.6": true,
+    "unrs-resolver@1.12.2": true,
+    "esbuild@0.21.5": true,
+    "esbuild@0.27.4": true,
+    "esbuild@0.24.2": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.25.12": true
+  }
 }

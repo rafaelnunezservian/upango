@@ -42,13 +42,13 @@ Customization Functions, customer account UI extension), `deploy/` (CLI de despl
 - [ ] T003 [P] Crear proyecto de Google Cloud con facturación habilitada para el proveedor de referencia GCP
 - [ ] T004 [P] Instalar y verificar versiones locales de Node.js 24 LTS, Shopify CLI y gcloud CLI
 - [ ] T005 Inicializar el proyecto backend con el template React Router de Shopify (sin Prisma) en `CODE/upango/` mediante `shopify app init`
-- [ ] T006 Configurar npm workspaces (`app`, `packages/*`, `extensions/*`, `deploy`) en `package.json` raíz
-- [ ] T007 [P] Configurar TypeScript strict en `tsconfig.base.json`
-- [ ] T008 [P] Configurar ESLint en `eslint.config.js`, incluyendo la regla de restricción de imports de FR-083 (SDK/CLI de nube solo en `app/infrastructure/**` y `deploy/src/proveedores/**`)
-- [ ] T009 [P] Configurar Prettier en `.prettierrc`
-- [ ] T010 [P] Configurar Vitest workspace en `vitest.workspace.ts`
-- [ ] T011 [P] Crear `.env.example` con las 16 variables de entorno de CT-09 (sin valores secretos)
-- [ ] T012 [P] Crear `.gitignore` y `.dockerignore` iniciales en la raíz del repo
+- [x] T006 Configurar npm workspaces (`app`, `packages/*`, `extensions/*`, `deploy`) en `package.json` raíz
+- [x] T007 [P] Configurar TypeScript strict en `tsconfig.base.json`
+- [x] T008 [P] Configurar ESLint en `eslint.config.js`, incluyendo la regla de restricción de imports de FR-083 (SDK/CLI de nube solo en `app/infrastructure/**` y `deploy/src/proveedores/**`)
+- [x] T009 [P] Configurar Prettier en `.prettierrc`
+- [x] T010 [P] Configurar Vitest workspace en `vitest.workspace.ts`
+- [x] T011 [P] Crear `.env.example` con las 16 variables de entorno de CT-09 (sin valores secretos)
+- [x] T012 [P] Crear `.gitignore` y `.dockerignore` iniciales en la raíz del repo
 
 **Checkpoint**: entorno de desarrollo listo; `npm install` funciona en el monorepo.
 
@@ -63,40 +63,40 @@ webhooks, endpoints públicos) que todas las historias de usuario necesitan.
 
 ### Paquete de contratos compartidos
 
-- [ ] T013 Crear paquete `@puntos-recogida/contratos` en `packages/contratos/package.json`
-- [ ] T014 [P] Implementar normalización de texto (acentos/mayúsculas) en `packages/contratos/src/normalizacion.ts`
-- [ ] T015 [P] Implementar `esCarritoResolado` en `packages/contratos/src/carrito.ts`
-- [ ] T016 [P] Implementar `esTarifaRecogida` (comparación normalizada contra `TITULO_TARIFA_RECOGIDA`, DEC-08) en `packages/contratos/src/tarifa.ts`
-- [ ] T017 [P] Implementar `formatearTituloRecogida` (trim, quitar caracteres de control, colapsar espacios, truncar a 60 con "…") en `packages/contratos/src/tarifa.ts`
-- [ ] T018 [P] Definir `CLAVES_ATRIBUTO` (las 8 claves de CT-02) en `packages/contratos/src/atributos.ts`
-- [ ] T019 [P] Test de coherencia: leer los `.graphql` de ambas Functions y fallar si alguna clave no coincide con `CLAVES_ATRIBUTO`, en `packages/contratos/src/coherencia.test.ts`
-- [ ] T020 [P] Tests unitarios de contratos (normalización, `esCarritoResolado`, `esTarifaRecogida`, `formatearTituloRecogida`) en `packages/contratos/src/*.test.ts`
+- [x] T013 Crear paquete `@puntos-recogida/contratos` en `packages/contratos/package.json`
+- [x] T014 [P] Implementar normalización de texto (acentos/mayúsculas) en `packages/contratos/src/normalizacion.ts`
+- [x] T015 [P] Implementar `esCarritoResolado` en `packages/contratos/src/carrito.ts`
+- [x] T016 [P] Implementar `esTarifaRecogida` (comparación normalizada contra `TITULO_TARIFA_RECOGIDA`, DEC-08) en `packages/contratos/src/tarifa.ts`
+- [x] T017 [P] Implementar `formatearTituloRecogida` (trim, quitar caracteres de control, colapsar espacios, truncar a 60 con "…") en `packages/contratos/src/tarifa.ts`
+- [x] T018 [P] Definir `CLAVES_ATRIBUTO` (las 8 claves de CT-02) en `packages/contratos/src/atributos.ts`
+- [x] T019 [P] Test de coherencia: leer los `.graphql` de ambas Functions y fallar si alguna clave no coincide con `CLAVES_ATRIBUTO`, en `packages/contratos/src/coherencia.test.ts`
+- [x] T020 [P] Tests unitarios de contratos (normalización, `esCarritoResolado`, `esTarifaRecogida`, `formatearTituloRecogida`) en `packages/contratos/src/*.test.ts`
 
 ### Configuración, sesiones y observabilidad
 
-- [ ] T021 Implementar `config.server.ts` con validación zod de las 16 variables de entorno (CT-09), exponiendo un objeto tipado e inmutable, en `app/config/config.server.ts`
-- [ ] T022 [P] Test de `config.server.ts` (el proceso falla con mensaje claro si falta una variable requerida) en `app/config/config.server.test.ts`
-- [ ] T023 Implementar `FirestoreSessionStorage` (basado en `snippets/firestore-session-storage.server.ts`, colección/DB configurables) en `app/infrastructure/sesiones/firestoreSessionStorage.server.ts`
-- [ ] T024 [P] Implementar `fabricaSessionStorage.server.ts` que selecciona entre `MemorySessionStorage` y `FirestoreSessionStorage` según `SESSION_STORAGE_DRIVER`, en `app/infrastructure/sesiones/fabricaSessionStorage.server.ts`
-- [ ] T025 [P] Test de contrato compartido de `SessionStorage` (memoria + emulador de Firestore) en `app/infrastructure/sesiones/sessionStorage.contract.test.ts`
-- [ ] T026 [P] Implementar `RegistroJson` (logs JSON estructurados con severidad/evento/shop/duración, nunca secretos ni PII) en `app/infrastructure/observabilidad/registroJson.server.ts`
-- [ ] T027 [P] Implementar `RelojSistema` en `app/infrastructure/observabilidad/relojSistema.server.ts`
+- [x] T021 Implementar `config.server.ts` con validación zod de las 16 variables de entorno (CT-09), exponiendo un objeto tipado e inmutable, en `app/config/config.server.ts`
+- [x] T022 [P] Test de `config.server.ts` (el proceso falla con mensaje claro si falta una variable requerida) en `app/config/config.server.test.ts`
+- [x] T023 Implementar `FirestoreSessionStorage` (basado en `snippets/firestore-session-storage.server.ts`, colección/DB configurables) en `app/infrastructure/sesiones/firestoreSessionStorage.server.ts`
+- [x] T024 [P] Implementar `fabricaSessionStorage.server.ts` que selecciona entre `MemorySessionStorage` y `FirestoreSessionStorage` según `SESSION_STORAGE_DRIVER`, en `app/infrastructure/sesiones/fabricaSessionStorage.server.ts`
+- [x] T025 [P] Test de contrato compartido de `SessionStorage` (memoria + emulador de Firestore) en `app/infrastructure/sesiones/sessionStorage.contract.test.ts`
+- [x] T026 [P] Implementar `RegistroJson` (logs JSON estructurados con severidad/evento/shop/duración, nunca secretos ni PII) en `app/infrastructure/observabilidad/registroJson.server.ts`
+- [x] T027 [P] Implementar `RelojSistema` en `app/infrastructure/observabilidad/relojSistema.server.ts`
 
 ### Composition root y configuración de la app Shopify
 
-- [ ] T028 Implementar `contenedor.server.ts` (singletons: sessionStorage según driver, registro, reloj; factories por request) en `app/composition/contenedor.server.ts` (depende de T021, T023, T024, T026, T027)
-- [ ] T029 Configurar `shopify.server.ts` (`shopifyApp`, apiVersion 2026-07, `authPathPrefix="/auth"`, `distribution: AppDistribution.AppStore`, sessionStorage desde el contenedor) en `app/shopify.server.ts` (depende de T028)
-- [ ] T030 [P] Crear `shopify.app.toml` de producción (CT-08 completo: nombre, scopes mínimos FR-069, `auth.redirect_urls`, webhooks, `app_proxy`) en la raíz del repo
-- [ ] T031 [P] Crear `shopify.app.dev.toml` (DEC-18: client_id de dev, `automatically_update_urls_on_dev=true`) en la raíz del repo
+- [x] T028 Implementar `contenedor.server.ts` (singletons: sessionStorage según driver, registro, reloj; factories por request) en `app/composition/contenedor.server.ts` (depende de T021, T023, T024, T026, T027)
+- [x] T029 Configurar `shopify.server.ts` (`shopifyApp`, apiVersion 2026-07, `authPathPrefix="/auth"`, `distribution: AppDistribution.AppStore`, sessionStorage desde el contenedor) en `app/shopify.server.ts` (depende de T028)
+- [x] T030 [P] Crear `shopify.app.toml` de producción (CT-08 completo: nombre, scopes mínimos FR-069, `auth.redirect_urls`, webhooks, `app_proxy`) en la raíz del repo
+- [x] T031 [P] Crear `shopify.app.dev.toml` (DEC-18: client_id de dev, `automatically_update_urls_on_dev=true`) en la raíz del repo
 
 ### Webhooks y endpoints públicos base
 
-- [ ] T032 [P] Implementar `app/routes/webhooks.app.uninstalled.tsx` (FR-065: elimina sesiones de la tienda y limpia caché)
-- [ ] T033 [P] Implementar `app/routes/webhooks.app.scopes_update.tsx` (FR-066: actualiza el scope almacenado)
-- [ ] T034 [P] Implementar `app/routes/webhooks.compliance.tsx` (FR-067: `customers/data_request`, `customers/redact` solo registran; `shop/redact` elimina datos remanentes de la tienda)
-- [ ] T035 [P] Implementar `app/routes/healthz.tsx` (`GET /healthz` → 200, FR-075)
-- [ ] T036 [P] Implementar `app/routes/privacidad.tsx` (política de privacidad pública en español, FR-068)
-- [ ] T037 [P] Tests de `healthz.tsx` y de los webhooks base en `app/routes/*.test.ts`
+- [x] T032 [P] Implementar `app/routes/webhooks.app.uninstalled.tsx` (FR-065: elimina sesiones de la tienda y limpia caché)
+- [x] T033 [P] Implementar `app/routes/webhooks.app.scopes_update.tsx` (FR-066: actualiza el scope almacenado)
+- [x] T034 [P] Implementar `app/routes/webhooks.compliance.tsx` (FR-067: `customers/data_request`, `customers/redact` solo registran; `shop/redact` elimina datos remanentes de la tienda)
+- [x] T035 [P] Implementar `app/routes/healthz.tsx` (`GET /healthz` → 200, FR-075)
+- [x] T036 [P] Implementar `app/routes/privacidad.tsx` (política de privacidad pública en español, FR-068)
+- [x] T037 [P] Tests de `healthz.tsx` y de los webhooks base en `app/routes/*.test.ts`
 
 **Checkpoint**: `npm test`, `npm run typecheck` y `npm run lint` en verde; `shopify app dev` instala la app en la
 dev store sin errores. La implementación de historias de usuario puede comenzar.
