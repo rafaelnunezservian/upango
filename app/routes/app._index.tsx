@@ -4,19 +4,39 @@ import type {
   HeadersFunction,
   LoaderFunctionArgs,
 } from "react-router";
-import { useFetcher } from "react-router";
+import { useFetcher, useLoaderData } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
+import { contenedor } from "../composition/contenedor.server";
+import { crearPuntosDeEjemplo } from "../application/use-cases/crearPuntosDeEjemplo.js";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
 
-  return null;
+  return { semillaHabilitada: contenedor.config.habilitarSemilla };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
+
+  const formData = await request.formData();
+  if (formData.get("intencion") === "sembrar") {
+    // FR-005: la herramienta de semilla solo existe con HABILITAR_SEMILLA=true
+    // (nunca en producción; `config.server.ts` ya impide esa combinación al
+    // arrancar el proceso). La UI mínima se completa en la Fase 7 (US-5).
+    if (!contenedor.config.habilitarSemilla) {
+      throw new Response("La creación de puntos de ejemplo no está habilitada.", {
+        status: 403,
+      });
+    }
+    const resultado = await crearPuntosDeEjemplo({
+      escritor: contenedor.crearEscritorPuntos(admin.graphql),
+      registro: contenedor.registro,
+    });
+    return { sembrado: resultado };
+  }
+
   const color = ["Red", "Orange", "Yellow", "Green"][
     Math.floor(Math.random() * 4)
   ];
@@ -128,12 +148,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Index() {
+  const { semillaHabilitada } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const fetcherSemilla = useFetcher<typeof action>();
 
   const shopify = useAppBridge();
   const isLoading =
     ["loading", "submitting"].includes(fetcher.state) &&
     fetcher.formMethod === "POST";
+  const sembrando =
+    ["loading", "submitting"].includes(fetcherSemilla.state) &&
+    fetcherSemilla.formMethod === "POST";
 
   useEffect(() => {
     if (fetcher.data?.product?.id) {
@@ -141,13 +166,38 @@ export default function Index() {
     }
   }, [fetcher.data?.product?.id, shopify]);
 
+  useEffect(() => {
+    if (fetcherSemilla.data?.sembrado) {
+      shopify.toast.show(
+        `${fetcherSemilla.data.sembrado.creados} puntos de ejemplo creados`,
+      );
+    }
+  }, [fetcherSemilla.data, shopify]);
+
   const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  const crearPuntosDeEjemploClick = () =>
+    fetcherSemilla.submit({ intencion: "sembrar" }, { method: "POST" });
 
   return (
     <s-page heading="Shopify app template">
       <s-button slot="primary-action" onClick={generateProduct}>
         Generate a product
       </s-button>
+
+      {semillaHabilitada && (
+        <s-section heading="Datos de ejemplo (solo desarrollo)">
+          <s-paragraph>
+            Crea 600 puntos de recogida de ejemplo (FR-005) para probar el
+            selector del carrito con más de 500 puntos.
+          </s-paragraph>
+          <s-button
+            onClick={crearPuntosDeEjemploClick}
+            {...(sembrando ? { loading: true } : {})}
+          >
+            Crear puntos de ejemplo
+          </s-button>
+        </s-section>
+      )}
 
       <s-section heading="Congrats on creating a new Shopify app 🎉">
         <s-paragraph>

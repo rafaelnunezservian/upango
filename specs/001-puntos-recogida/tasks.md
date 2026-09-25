@@ -113,14 +113,14 @@ admin y verificar las validaciones de campos.
 
 ### Implementation for User Story 1
 
-- [ ] T038 [P] [US1] Implementar entidad `PuntoRecogida` + `Coordenadas` + validaciones de dominio en `app/domain/puntoRecogida.ts`
-- [ ] T039 [P] [US1] Tests de dominio de `PuntoRecogida` (construcción y validación) en `app/domain/puntoRecogida.test.ts`
-- [ ] T040 [US1] Añadir el bloque de definición del metaobjeto `$app:punto_recogida` (CT-01: 6 campos, `display_name_field="nombre"`, `access.admin="merchant_read_write"`, `access.storefront="none"`) a `shopify.app.toml` (depende de T030)
-- [ ] T041 [US1] Replicar el mismo bloque CT-01 en `shopify.app.dev.toml` (depende de T031)
-- [ ] T042 [US1] Implementar `EscritorPuntosShopify` (adapter de escritura, solo para semilla FR-005) en `app/infrastructure/shopify/escritorPuntosShopify.server.ts`
-- [ ] T043 [US1] Implementar el caso de uso `CrearPuntosDeEjemplo` (600 puntos por defecto, handles `ejemplo-0001...`, idempotente por handle, respeta throttling) en `app/application/use-cases/crearPuntosDeEjemplo.ts` (depende de T042)
-- [ ] T044 [US1] Registrar la acción de semilla en `app/routes/app._index.tsx` bajo `HABILITAR_SEMILLA` (ausente/falla al iniciar en producción) — ruta mínima, se completa en Fase 7 (US-5)
-- [ ] T045 [P] [US1] Tests del caso de uso `CrearPuntosDeEjemplo` (idempotencia, throttling) en `app/application/use-cases/crearPuntosDeEjemplo.test.ts`
+- [x] T038 [P] [US1] Implementar entidad `PuntoRecogida` + `Coordenadas` + validaciones de dominio en `app/domain/puntoRecogida.ts`
+- [x] T039 [P] [US1] Tests de dominio de `PuntoRecogida` (construcción y validación) en `app/domain/puntoRecogida.test.ts`
+- [x] T040 [US1] Añadir el bloque de definición del metaobjeto `$app:punto_recogida` (CT-01: 6 campos, `display_name_field="nombre"`, `access.admin="merchant_read_write"`, `access.storefront="none"`) a `shopify.app.toml` (depende de T030)
+- [x] T041 [US1] Replicar el mismo bloque CT-01 en `shopify.app.dev.toml` (depende de T031)
+- [x] T042 [US1] Implementar `EscritorPuntosShopify` (adapter de escritura, solo para semilla FR-005) en `app/infrastructure/shopify/escritorPuntosShopify.server.ts`
+- [x] T043 [US1] Implementar el caso de uso `CrearPuntosDeEjemplo` (600 puntos por defecto, handles `ejemplo-0001...`, idempotente por handle, respeta throttling) en `app/application/use-cases/crearPuntosDeEjemplo.ts` (depende de T042)
+- [x] T044 [US1] Registrar la acción de semilla en `app/routes/app._index.tsx` bajo `HABILITAR_SEMILLA` (ausente/falla al iniciar en producción) — ruta mínima, se completa en Fase 7 (US-5)
+- [x] T045 [P] [US1] Tests del caso de uso `CrearPuntosDeEjemplo` (idempotencia, throttling) en `app/application/use-cases/crearPuntosDeEjemplo.test.ts`
 
 **Checkpoint**: la definición del metaobjeto se despliega con `shopify app deploy`; el CRUD nativo del admin
 valida campos vacíos, coordenadas fuera de rango y `direccion_corta` >60 caracteres; la herramienta de semilla

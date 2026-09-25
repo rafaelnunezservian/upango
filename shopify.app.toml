@@ -41,5 +41,50 @@ url = "/proxy"
 prefix = "apps"
 subpath = "puntos-recogida"
 
-# La definición [metaobjects.app.punto_recogida] completa (CT-01) se agrega
-# en la Fase 3 (US-1, T040) junto con sus 6 campos y validaciones.
+[metaobjects.app.punto_recogida]
+name = "Punto de recogida"
+description = "Puntos donde los clientes recogen los pedidos de tipo resolado"
+display_name_field = "nombre"
+
+[metaobjects.app.punto_recogida.access]
+admin = "merchant_read_write"
+storefront = "none"
+
+[metaobjects.app.punto_recogida.fields.identificador]
+name = "Identificador"
+type = "single_line_text_field"
+required = true
+validations.max = 40
+validations.regex = "^[A-Za-z0-9_-]+$"
+
+[metaobjects.app.punto_recogida.fields.nombre]
+name = "Nombre"
+type = "single_line_text_field"
+required = true
+validations.max = 100
+
+[metaobjects.app.punto_recogida.fields.direccion]
+name = "Dirección"
+type = "single_line_text_field"
+required = true
+validations.max = 255
+
+[metaobjects.app.punto_recogida.fields.direccion_corta]
+name = "Dirección formato reducido"
+type = "single_line_text_field"
+required = true
+validations.max = 60
+
+[metaobjects.app.punto_recogida.fields.lat]
+name = "Latitud"
+type = "number_decimal"
+required = true
+validations.min = -90.0
+validations.max = 90.0
+
+[metaobjects.app.punto_recogida.fields.lng]
+name = "Longitud"
+type = "number_decimal"
+required = true
+validations.min = -180.0
+validations.max = 180.0
