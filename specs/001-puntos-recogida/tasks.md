@@ -41,7 +41,7 @@ Customization Functions, customer account UI extension), `deploy/` (CLI de despl
 - [ ] T002 [P] Crear dev store con temas Dawn y Horizon instalados (uno publicado, uno en vista previa) y cuentas de cliente nuevas habilitadas
 - [ ] T003 [P] Crear proyecto de Google Cloud con facturación habilitada para el proveedor de referencia GCP
 - [ ] T004 [P] Instalar y verificar versiones locales de Node.js 24 LTS, Shopify CLI y gcloud CLI
-- [ ] T005 Inicializar el proyecto backend con el template React Router de Shopify (sin Prisma) en `CODE/upango/` mediante `shopify app init`
+- [x] T005 Inicializar el proyecto backend con el template React Router de Shopify (sin Prisma) en `CODE/upango/` mediante `shopify app init`
 - [x] T006 Configurar npm workspaces (`app`, `packages/*`, `extensions/*`, `deploy`) en `package.json` raíz
 - [x] T007 [P] Configurar TypeScript strict en `tsconfig.base.json`
 - [x] T008 [P] Configurar ESLint en `eslint.config.js`, incluyendo la regla de restricción de imports de FR-083 (SDK/CLI de nube solo en `app/infrastructure/**` y `deploy/src/proveedores/**`)
