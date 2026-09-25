@@ -5,8 +5,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 3 — US-1 (T038–T045).
-- **Siguiente sesión**: Phase 4 — US-2 backend (T046–T057).
+- **Última fase completada**: Phase 4 — US-2 backend (T046–T057).
+- **Siguiente sesión**: Phase 4 — US-2 cliente de carrito (T058–T072).
 
 ## Plan de sesiones
 
@@ -14,8 +14,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 |---|---|---|---|
 | 1 | Paso 0: hook de sesión + verificación de Foundational | — | ✅ |
 | 2 | Phase 3 — US-1 | T038–T045 | ✅ |
-| 3 | Phase 4 — US-2 backend | T046–T057 | ⏳ (siguiente) |
-| 4 | Phase 4 — US-2 cliente de carrito | T058–T072 | ⏳ |
+| 3 | Phase 4 — US-2 backend | T046–T057 | ✅ |
+| 4 | Phase 4 — US-2 cliente de carrito | T058–T072 | ⏳ (siguiente) |
 | 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ⏳ |
 | 6 | Phase 5 — US-3 Functions | T078–T091 | ⏳ |
 | 7 | Phase 6 — US-4 | T092–T095 | ⏳ |
@@ -78,3 +78,36 @@ que necesita plataforma queda en la lista de abajo.
   un botón condicionado a `semillaHabilitada` (del loader), sin tocar el demo de "Generate a product" del
   template — la página se rediseña por completo en la Fase 7 (US-5, T106–T107).
 - Verificado: `npm test` (77 tests OK, 6 omitidos), `npm run typecheck` y `npm run lint` sin errores.
+
+### Sesión 3 — Phase 4 (US-2 backend)
+
+- `PuntoInvalidoError` se centralizó en `app/domain/errores.ts` (con la nueva `PuntosNoDisponiblesError`,
+  T054), tal como preveía la nota de la sesión 2; `app/domain/puntoRecogida.ts` la re-exporta para no romper
+  los imports existentes de sus tests.
+- **División de responsabilidades TTL/single-flight (decisión de diseño, no está en el CT)**: el puerto
+  `CachePuntos` (T047) es solo almacenamiento por tienda (`leer`/`guardar`/`borrar`); `CachePuntosMemoria`
+  (T050) decide si una entrada sigue "fresca" (TTL) y deja de servirla del todo pasado
+  `PUNTOS_CACHE_STALE_MAX_SEGUNDOS` (con LRU de 1000 tiendas). El *single-flight* de cargas concurrentes y el
+  "a lo sumo un refresco en segundo plano por tienda" (SWR) viven en `ListarPuntosRecogida` (T052), porque
+  solo el caso de uso conoce `FuentePuntos`; el puerto de caché no podía implementarlos por sí solo. Se eligió
+  así en vez de mover TTL/SWR al `CachePuntos` para mantener el puerto mínimo y testeable sin `FuentePuntos`.
+- `FuentePuntosShopify` (T048) reintenta con backoff exponencial (mismo patrón que `CrearPuntosDeEjemplo`)
+  solo ante `THROTTLED`, y reduce el tamaño de página a la mitad (mínimo 1) ante `MAX_COST_EXCEEDED`,
+  manteniendo el tamaño reducido para las páginas siguientes. El mapeo de `fields{key,value}` a
+  `DatosPuntoRecogida` no valida nada: un campo ausente o `lat`/`lng` no numérico produce `NaN`/cadena vacía,
+  que el dominio (`crearPuntoRecogida`) descarta igual que cualquier otro dato inválido (FR-014), sin lógica
+  duplicada en el adaptador.
+- `ListarPuntosRecogida.ejecutar(tienda, fuente)` recibe la `FuentePuntos` por llamada (atada al cliente
+  Admin de esa petición) pero mantiene estado propio entre llamadas (`Map`/`Set` de cargas y refrescos en
+  curso) para el single-flight; se registró como singleton en el contenedor porque ese estado debe
+  compartirse entre peticiones concurrentes de la misma tienda.
+- `procesarDesinstalacion` (FR-065) ahora también llama a `cachePuntos.borrar(shop)` — quedaba pendiente de
+  la Fase 2 ("se conecta cuando exista `CachePuntos`"); se propagó la dependencia a
+  `webhooks.app.uninstalled.tsx` y a `webhooks.compliance.tsx` (que reutiliza las mismas dependencias para
+  `shop/redact`).
+- `app/routes/proxy.puntos.tsx` no valida la firma HMAC ella misma: `authenticate.public.appProxy` ya lanza
+  un `Response` 400 antes de llegar al loader si la firma falta o es inválida (verificado en el código fuente
+  de `@shopify/shopify-app-react-router`), por eso el CT-03 solo necesita mapear 404/502/500 explícitamente.
+- Verificado: `npm test` (99 tests OK, 6 omitidos), `npm run typecheck` y `npm run lint` sin errores. No se
+  pudo probar contra una tienda real (sin Partners/dev store en la sesión cloud) — queda para la fase de
+  testing junto con el resto de checkpoints pendientes de plataforma.

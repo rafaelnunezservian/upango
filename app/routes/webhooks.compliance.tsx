@@ -20,6 +20,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (esTopicPrivacidad(topic)) {
     await procesarSolicitudPrivacidad(topic, shop, {
       sessionStorage: contenedor.sessionStorage,
+      cachePuntos: contenedor.cachePuntos,
       registro: contenedor.registro,
     });
   } else {

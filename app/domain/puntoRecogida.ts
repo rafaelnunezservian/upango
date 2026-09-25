@@ -1,15 +1,7 @@
 import { LIMITES, RANGOS_COORDENADAS, tieneValor } from "@puntos-recogida/contratos";
+import { PuntoInvalidoError } from "./errores.js";
 
-/** Error de dominio: los datos crudos no forman un `PuntoRecogida` válido (CT-01). */
-export class PuntoInvalidoError extends Error {
-  constructor(
-    readonly motivo: string,
-    readonly identificador?: string,
-  ) {
-    super(motivo);
-    this.name = "PuntoInvalidoError";
-  }
-}
+export { PuntoInvalidoError } from "./errores.js";
 
 /** Coordenadas geográficas de un punto de recogida (CT-01: rangos válidos). */
 export interface Coordenadas {

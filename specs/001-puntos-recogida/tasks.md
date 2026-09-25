@@ -139,18 +139,18 @@ checkout.
 
 ### Backend: fuente de datos, caché y proxy
 
-- [ ] T046 [P] [US2] Definir el puerto `FuentePuntos` en `app/application/ports/fuentePuntos.ts`
-- [ ] T047 [P] [US2] Definir el puerto `CachePuntos` en `app/application/ports/cachePuntos.ts`
-- [ ] T048 [US2] Implementar `FuentePuntosShopify` (paginación cursor de 250, backoff exponencial ante throttling, reducción de tamaño de página) en `app/infrastructure/shopify/fuentePuntosShopify.server.ts` (depende de T046)
-- [ ] T049 [P] [US2] Tests de `FuentePuntosShopify` (múltiples páginas, throttling + reintentos, reducción de page size) con cliente GraphQL falso en `app/infrastructure/shopify/fuentePuntosShopify.server.test.ts`
-- [ ] T050 [US2] Implementar `CachePuntosMemoria` (TTL configurable, single-flight, stale-while-revalidate, stale-if-error hasta 24h, LRU con tope de 1000 tiendas) en `app/infrastructure/cache/cachePuntosMemoria.server.ts` (depende de T047)
-- [ ] T051 [P] [US2] Tests de `CachePuntosMemoria` (TTL, LRU, stale-if-error) en `app/infrastructure/cache/cachePuntosMemoria.server.test.ts`
-- [ ] T052 [US2] Implementar el caso de uso `ListarPuntosRecogida` (fresco/obsoleto+refresh en segundo plano/single-flight/stale-if-error/sin copia válida/descarta inválidos con log/orden alfabético español/detecta duplicados) en `app/application/use-cases/listarPuntosRecogida.ts` (depende de T048, T050, T038)
-- [ ] T053 [P] [US2] Tests de `ListarPuntosRecogida` con dobles de puertos en `app/application/use-cases/listarPuntosRecogida.test.ts`
-- [ ] T054 [P] [US2] Implementar errores de dominio `PuntoInvalidoError` y `PuntosNoDisponiblesError` en `app/domain/errores.ts`
-- [ ] T055 [US2] Implementar `app/routes/proxy.puntos.tsx` (`authenticate.public.appProxy`, forma JSON de CT-03, mapeo de errores 400/401/404/502/500, `Cache-Control: public, max-age=60`) (depende de T052, T054)
-- [ ] T056 [P] [US2] Tests de `proxy.puntos.tsx` (firma inválida → rechazo, sin sesión → 404, ok → JSON de CT-03, error de origen → 502) en `app/routes/proxy.puntos.test.ts`
-- [ ] T057 [US2] Registrar `FuentePuntos`, `CachePuntos` y `ListarPuntosRecogida` en `app/composition/contenedor.server.ts` (depende de T028, T048, T050, T052)
+- [x] T046 [P] [US2] Definir el puerto `FuentePuntos` en `app/application/ports/fuentePuntos.ts`
+- [x] T047 [P] [US2] Definir el puerto `CachePuntos` en `app/application/ports/cachePuntos.ts`
+- [x] T048 [US2] Implementar `FuentePuntosShopify` (paginación cursor de 250, backoff exponencial ante throttling, reducción de tamaño de página) en `app/infrastructure/shopify/fuentePuntosShopify.server.ts` (depende de T046)
+- [x] T049 [P] [US2] Tests de `FuentePuntosShopify` (múltiples páginas, throttling + reintentos, reducción de page size) con cliente GraphQL falso en `app/infrastructure/shopify/fuentePuntosShopify.server.test.ts`
+- [x] T050 [US2] Implementar `CachePuntosMemoria` (TTL configurable, single-flight, stale-while-revalidate, stale-if-error hasta 24h, LRU con tope de 1000 tiendas) en `app/infrastructure/cache/cachePuntosMemoria.server.ts` (depende de T047)
+- [x] T051 [P] [US2] Tests de `CachePuntosMemoria` (TTL, LRU, stale-if-error) en `app/infrastructure/cache/cachePuntosMemoria.server.test.ts`
+- [x] T052 [US2] Implementar el caso de uso `ListarPuntosRecogida` (fresco/obsoleto+refresh en segundo plano/single-flight/stale-if-error/sin copia válida/descarta inválidos con log/orden alfabético español/detecta duplicados) en `app/application/use-cases/listarPuntosRecogida.ts` (depende de T048, T050, T038)
+- [x] T053 [P] [US2] Tests de `ListarPuntosRecogida` con dobles de puertos en `app/application/use-cases/listarPuntosRecogida.test.ts`
+- [x] T054 [P] [US2] Implementar errores de dominio `PuntoInvalidoError` y `PuntosNoDisponiblesError` en `app/domain/errores.ts`
+- [x] T055 [US2] Implementar `app/routes/proxy.puntos.tsx` (`authenticate.public.appProxy`, forma JSON de CT-03, mapeo de errores 400/401/404/502/500, `Cache-Control: public, max-age=60`) (depende de T052, T054)
+- [x] T056 [P] [US2] Tests de `proxy.puntos.tsx` (firma inválida → rechazo, sin sesión → 404, ok → JSON de CT-03, error de origen → 502) en `app/routes/proxy.puntos.test.ts`
+- [x] T057 [US2] Registrar `FuentePuntos`, `CachePuntos` y `ListarPuntosRecogida` en `app/composition/contenedor.server.ts` (depende de T028, T048, T050, T052)
 
 ### Paquete de cliente de carrito (`packages/selector-carrito`)
 
