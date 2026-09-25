@@ -7,11 +7,15 @@ import type { Reloj } from "../application/ports/reloj.js";
 import type { EscritorPuntos } from "../application/ports/escritorPuntos.js";
 import type { FuentePuntos } from "../application/ports/fuentePuntos.js";
 import type { CachePuntos } from "../application/ports/cachePuntos.js";
+import type { GatewayPersonalizaciones } from "../application/ports/gatewayPersonalizaciones.js";
+import type { ConsultaConfiguracionTienda } from "../application/ports/consultaConfiguracionTienda.js";
 import { crearSessionStorage } from "../infrastructure/sesiones/fabricaSessionStorage.server.js";
 import { RegistroJson } from "../infrastructure/observabilidad/registroJson.server.js";
 import { RelojSistema } from "../infrastructure/observabilidad/relojSistema.server.js";
 import { EscritorPuntosShopify } from "../infrastructure/shopify/escritorPuntosShopify.server.js";
 import { FuentePuntosShopify } from "../infrastructure/shopify/fuentePuntosShopify.server.js";
+import { GatewayPersonalizacionesShopify } from "../infrastructure/shopify/gatewayPersonalizacionesShopify.server.js";
+import { ConsultaConfiguracionTiendaShopify } from "../infrastructure/shopify/consultaConfiguracionTiendaShopify.server.js";
 import { CachePuntosMemoria } from "../infrastructure/cache/cachePuntosMemoria.server.js";
 import { ListarPuntosRecogida } from "../application/use-cases/listarPuntosRecogida.js";
 
@@ -32,6 +36,10 @@ export interface Contenedor {
   readonly crearEscritorPuntos: (admin: AdminGraphqlClient) => EscritorPuntos;
   /** Fábrica por petición (T048): liga la lectura de puntos al cliente Admin de la tienda. */
   readonly crearFuentePuntos: (admin: AdminGraphqlClient) => FuentePuntos;
+  /** Fábrica por petición (T098): página de admin, US-5. */
+  readonly crearGatewayPersonalizaciones: (admin: AdminGraphqlClient) => GatewayPersonalizaciones;
+  /** Fábrica por petición (T100): página de admin, US-5. */
+  readonly crearConsultaConfiguracionTienda: (admin: AdminGraphqlClient) => ConsultaConfiguracionTienda;
 }
 
 async function construirContenedor(): Promise<Contenedor> {
@@ -49,6 +57,10 @@ async function construirContenedor(): Promise<Contenedor> {
     new EscritorPuntosShopify(admin);
   const crearFuentePuntos = (admin: AdminGraphqlClient): FuentePuntos =>
     new FuentePuntosShopify(admin, registro, config.puntosTamanoPagina);
+  const crearGatewayPersonalizaciones = (admin: AdminGraphqlClient): GatewayPersonalizaciones =>
+    new GatewayPersonalizacionesShopify(admin, config.shopifyApiKey);
+  const crearConsultaConfiguracionTienda = (admin: AdminGraphqlClient): ConsultaConfiguracionTienda =>
+    new ConsultaConfiguracionTiendaShopify(admin);
 
   return Object.freeze({
     config,
@@ -59,6 +71,8 @@ async function construirContenedor(): Promise<Contenedor> {
     listarPuntosRecogida,
     crearEscritorPuntos,
     crearFuentePuntos,
+    crearGatewayPersonalizaciones,
+    crearConsultaConfiguracionTienda,
   });
 }
 

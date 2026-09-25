@@ -4,27 +4,62 @@ import type {
   HeadersFunction,
   LoaderFunctionArgs,
 } from "react-router";
-import { useFetcher, useLoaderData } from "react-router";
+import { useFetcher, useLoaderData, useRevalidator } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { contenedor } from "../composition/contenedor.server";
 import { crearPuntosDeEjemplo } from "../application/use-cases/crearPuntosDeEjemplo.js";
+import {
+  obtenerEstadoConfiguracion,
+  type EstadoConfiguracion,
+  type EstadoPersonalizacion,
+} from "../application/use-cases/obtenerEstadoConfiguracion.js";
+import { activarPersonalizacionesEntrega } from "../application/use-cases/activarPersonalizacionesEntrega.js";
+import { es } from "../i18n/es.js";
+
+function mensajeDeError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
 
-  return { semillaHabilitada: contenedor.config.habilitarSemilla };
+  try {
+    const estado = await obtenerEstadoConfiguracion(session.shop, {
+      consulta: contenedor.crearConsultaConfiguracionTienda(admin.graphql),
+      gateway: contenedor.crearGatewayPersonalizaciones(admin.graphql),
+      apiKey: contenedor.config.shopifyApiKey,
+      habilitarSemilla: contenedor.config.habilitarSemilla,
+    });
+    return { estado, error: null };
+  } catch (error) {
+    contenedor.registro.error("admin.carga_fallida", {
+      tienda: session.shop,
+      motivo: mensajeDeError(error),
+    });
+    return { estado: null, error: es.errores.cargaFallida };
+  }
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
 
   const formData = await request.formData();
-  if (formData.get("intencion") === "sembrar") {
+  const intencion = formData.get("intencion");
+
+  if (intencion === "activar") {
+    const resultado = await activarPersonalizacionesEntrega({
+      gateway: contenedor.crearGatewayPersonalizaciones(admin.graphql),
+      registro: contenedor.registro,
+    });
+    return { activado: resultado };
+  }
+
+  if (intencion === "sembrar") {
     // FR-005: la herramienta de semilla solo existe con HABILITAR_SEMILLA=true
     // (nunca en producción; `config.server.ts` ya impide esa combinación al
-    // arrancar el proceso). La UI mínima se completa en la Fase 7 (US-5).
+    // arrancar el proceso).
     if (!contenedor.config.habilitarSemilla) {
       throw new Response("La creación de puntos de ejemplo no está habilitada.", {
         status: 403,
@@ -37,362 +72,173 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return { sembrado: resultado };
   }
 
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($product: ProductCreateInput!) {
-        productCreate(product: $product) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-            demoInfo: metafield(namespace: "$app", key: "demo_info") {
-              jsonValue
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        product: {
-          title: `${color} Snowboard`,
-          metafields: [
-            {
-              namespace: "$app",
-              key: "demo_info",
-              value: "Created by React Router Template",
-            },
-          ],
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
-
-  const product = responseJson.data!.productCreate!.product!;
-  const variantId = product.variants.edges[0]!.node!.id!;
-
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyReactRouterTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
-      }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
-  );
-
-  const variantResponseJson = await variantResponse.json();
-
-  const metaobjectResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyReactRouterTemplateUpsertMetaobject($handle: MetaobjectHandleInput!, $values: JSON!) {
-      metaobjectUpsert(handle: $handle, values: $values) {
-        metaobject {
-          id
-          handle
-          values
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }`,
-    {
-      variables: {
-        handle: {
-          type: "$app:example",
-          handle: "demo-entry",
-        },
-        values: {
-          title: "Demo Entry",
-          description:
-            "This metaobject was created by the Shopify app template to demonstrate the metaobject API.",
-        },
-      },
-    },
-  );
-
-  const metaobjectResponseJson = await metaobjectResponse.json();
-
-  return {
-    product: responseJson!.data!.productCreate!.product,
-    variant:
-      variantResponseJson!.data!.productVariantsBulkUpdate!.productVariants,
-    metaobject: metaobjectResponseJson!.data!.metaobjectUpsert!.metaobject,
-  };
+  throw new Response("Intención desconocida.", { status: 400 });
 };
 
-export default function Index() {
-  const { semillaHabilitada } = useLoaderData<typeof loader>();
-  const fetcher = useFetcher<typeof action>();
-  const fetcherSemilla = useFetcher<typeof action>();
+function resumenPersonalizaciones(
+  personalizaciones: EstadoConfiguracion["personalizaciones"],
+): { texto: string; tone: "success" | "warning" } {
+  const estados: EstadoPersonalizacion[] = Object.values(personalizaciones);
+  if (estados.every((estado) => estado === "activa")) {
+    return { texto: es.pasos.personalizaciones.estados.activa, tone: "success" };
+  }
+  if (estados.some((estado) => estado === "inexistente")) {
+    return { texto: es.pasos.personalizaciones.estados.inexistente, tone: "warning" };
+  }
+  return { texto: es.pasos.personalizaciones.estados.inactiva, tone: "warning" };
+}
 
+export default function Index() {
+  const { estado, error } = useLoaderData<typeof loader>();
+  const revalidator = useRevalidator();
+  const fetcherActivar = useFetcher<typeof action>();
+  const fetcherSemilla = useFetcher<typeof action>();
   const shopify = useAppBridge();
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
+
+  const activando =
+    ["loading", "submitting"].includes(fetcherActivar.state) &&
+    fetcherActivar.formMethod === "POST";
   const sembrando =
     ["loading", "submitting"].includes(fetcherSemilla.state) &&
     fetcherSemilla.formMethod === "POST";
 
   useEffect(() => {
-    if (fetcher.data?.product?.id) {
-      shopify.toast.show("Product created");
+    if (!fetcherActivar.data || !("activado" in fetcherActivar.data)) {
+      return;
     }
-  }, [fetcher.data?.product?.id, shopify]);
+    const { errores } = fetcherActivar.data.activado;
+    if (errores.length === 0) {
+      shopify.toast.show(es.pasos.personalizaciones.exito);
+    } else {
+      shopify.toast.show(errores.map((e) => e.message).join(" "), { isError: true });
+    }
+  }, [fetcherActivar.data, shopify]);
 
   useEffect(() => {
-    if (fetcherSemilla.data?.sembrado) {
-      shopify.toast.show(
-        `${fetcherSemilla.data.sembrado.creados} puntos de ejemplo creados`,
-      );
+    if (fetcherSemilla.data && "sembrado" in fetcherSemilla.data) {
+      shopify.toast.show(es.datosDeEjemplo.exito(fetcherSemilla.data.sembrado.creados));
     }
   }, [fetcherSemilla.data, shopify]);
 
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
-  const crearPuntosDeEjemploClick = () =>
-    fetcherSemilla.submit({ intencion: "sembrar" }, { method: "POST" });
+  if (error || !estado) {
+    return (
+      <s-page heading={es.pagina.titulo}>
+        <s-banner heading={error ?? es.errores.cargaFallida} tone="critical">
+          <s-button onClick={() => revalidator.revalidate()}>
+            {es.errores.reintentar}
+          </s-button>
+        </s-banner>
+      </s-page>
+    );
+  }
+
+  const erroresActivar =
+    fetcherActivar.data && "activado" in fetcherActivar.data
+      ? fetcherActivar.data.activado.errores
+      : [];
+  const personalizaciones = resumenPersonalizaciones(estado.personalizaciones);
 
   return (
-    <s-page heading="Shopify app template">
-      <s-button slot="primary-action" onClick={generateProduct}>
-        Generate a product
-      </s-button>
+    <s-page heading={es.pagina.titulo}>
+      {erroresActivar.length > 0 && (
+        <s-banner heading={es.pasos.personalizaciones.titulo} tone="critical">
+          <s-unordered-list>
+            {erroresActivar.map((error, indice) => (
+              <s-list-item key={indice}>{error.message}</s-list-item>
+            ))}
+          </s-unordered-list>
+        </s-banner>
+      )}
 
-      {semillaHabilitada && (
-        <s-section heading="Datos de ejemplo (solo desarrollo)">
-          <s-paragraph>
-            Crea 600 puntos de recogida de ejemplo (FR-005) para probar el
-            selector del carrito con más de 500 puntos.
-          </s-paragraph>
+      <s-section heading={es.queHaceLaApp.titulo}>
+        <s-unordered-list>
+          {es.queHaceLaApp.vinetas.map((vineta, indice) => (
+            <s-list-item key={indice}>{vineta}</s-list-item>
+          ))}
+        </s-unordered-list>
+      </s-section>
+
+      <s-section heading={es.pasos.titulo}>
+        <s-stack direction="block" gap="base">
+          <s-box padding="base" borderWidth="base" borderRadius="base">
+            <s-stack direction="inline" gap="base" alignItems="center">
+              <s-heading>{es.pasos.puntos.titulo}</s-heading>
+              <s-badge tone={estado.puntos.total > 0 ? "success" : "warning"}>
+                {es.pasos.puntos.estado(estado.puntos.total)}
+              </s-badge>
+            </s-stack>
+            <s-link href={estado.enlaces.entradasPuntos}>{es.pasos.puntos.accion}</s-link>
+          </s-box>
+
+          <s-box padding="base" borderWidth="base" borderRadius="base">
+            <s-stack direction="inline" gap="base" alignItems="center">
+              <s-heading>{es.pasos.tarifa.titulo}</s-heading>
+              <s-badge tone="warning">{es.pasos.tarifa.estado}</s-badge>
+            </s-stack>
+            <s-paragraph>{es.pasos.tarifa.descripcion}</s-paragraph>
+            <s-link href={estado.enlaces.ajustesEnvio}>{es.pasos.tarifa.accion}</s-link>
+          </s-box>
+
+          <s-box padding="base" borderWidth="base" borderRadius="base">
+            <s-stack direction="inline" gap="base" alignItems="center">
+              <s-heading>
+                {es.pasos.appEmbed.numero} {es.pasos.appEmbed.titulo}
+              </s-heading>
+              <s-badge tone="warning">{es.pasos.appEmbed.estado}</s-badge>
+            </s-stack>
+            <s-paragraph>{es.pasos.appEmbed.descripcion}</s-paragraph>
+            <s-link href={estado.enlaces.editorTemas} target="_top">
+              {es.pasos.appEmbed.accion}
+            </s-link>
+          </s-box>
+
+          <s-box padding="base" borderWidth="base" borderRadius="base">
+            <s-stack direction="inline" gap="base" alignItems="center">
+              <s-heading>{es.pasos.personalizaciones.titulo}</s-heading>
+              <s-badge tone={personalizaciones.tone}>{personalizaciones.texto}</s-badge>
+            </s-stack>
+            <s-button
+              onClick={() => fetcherActivar.submit({ intencion: "activar" }, { method: "POST" })}
+              {...(activando ? { loading: true } : {})}
+            >
+              {es.pasos.personalizaciones.accion}
+            </s-button>
+          </s-box>
+
+          <s-box padding="base" borderWidth="base" borderRadius="base">
+            <s-stack direction="inline" gap="base" alignItems="center">
+              <s-heading>{es.pasos.bloquePedido.titulo}</s-heading>
+              <s-badge tone="warning">{es.pasos.bloquePedido.estado}</s-badge>
+            </s-stack>
+            <s-paragraph>{es.pasos.bloquePedido.descripcion}</s-paragraph>
+            <s-link href={estado.enlaces.ajustesCheckout}>{es.pasos.bloquePedido.accion}</s-link>
+          </s-box>
+        </s-stack>
+      </s-section>
+
+      <s-section heading={es.comoFunciona.titulo}>
+        <s-paragraph>{es.comoFunciona.texto}</s-paragraph>
+      </s-section>
+
+      <s-section heading={es.modoDemo.titulo}>
+        <s-paragraph>{es.modoDemo.texto}</s-paragraph>
+      </s-section>
+
+      <s-banner heading={es.antesDeDesinstalar.titulo} tone="warning">
+        <s-paragraph>{es.antesDeDesinstalar.texto}</s-paragraph>
+      </s-banner>
+
+      {estado.semillaHabilitada && (
+        <s-section heading={es.datosDeEjemplo.titulo}>
+          <s-paragraph>{es.datosDeEjemplo.texto}</s-paragraph>
           <s-button
-            onClick={crearPuntosDeEjemploClick}
+            onClick={() => fetcherSemilla.submit({ intencion: "sembrar" }, { method: "POST" })}
             {...(sembrando ? { loading: true } : {})}
           >
-            Crear puntos de ejemplo
+            {es.datosDeEjemplo.accion}
           </s-button>
         </s-section>
       )}
-
-      <s-section heading="Congrats on creating a new Shopify app 🎉">
-        <s-paragraph>
-          This embedded app template uses{" "}
-          <s-link
-            href="https://shopify.dev/docs/apps/tools/app-bridge"
-            target="_blank"
-          >
-            App Bridge
-          </s-link>{" "}
-          interface examples like an{" "}
-          <s-link href="/app/additional">additional page in the app nav</s-link>
-          , as well as an{" "}
-          <s-link
-            href="https://shopify.dev/docs/api/admin-graphql"
-            target="_blank"
-          >
-            Admin GraphQL
-          </s-link>{" "}
-          mutation demo, to provide a starting point for app development.
-        </s-paragraph>
-      </s-section>
-      <s-section heading="Get started with products">
-        <s-paragraph>
-          Generate a product with GraphQL and get the JSON output for that
-          product. Learn more about the{" "}
-          <s-link
-            href="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-            target="_blank"
-          >
-            productCreate
-          </s-link>{" "}
-          mutation in our API references. Includes a product{" "}
-          <s-link
-            href="https://shopify.dev/docs/apps/build/custom-data/metafields"
-            target="_blank"
-          >
-            metafield
-          </s-link>{" "}
-          and{" "}
-          <s-link
-            href="https://shopify.dev/docs/apps/build/custom-data/metaobjects"
-            target="_blank"
-          >
-            metaobject
-          </s-link>
-          .
-        </s-paragraph>
-        <s-stack direction="inline" gap="base">
-          <s-button
-            onClick={generateProduct}
-            {...(isLoading ? { loading: true } : {})}
-          >
-            Generate a product
-          </s-button>
-          {fetcher.data?.product && (
-            <s-button
-              onClick={() => {
-                shopify.intents.invoke?.("edit:shopify/Product", {
-                  value: fetcher.data?.product?.id,
-                });
-              }}
-              target="_blank"
-              variant="tertiary"
-            >
-              Edit product
-            </s-button>
-          )}
-        </s-stack>
-        {fetcher.data?.product && (
-          <s-section heading="productCreate mutation">
-            <s-stack direction="block" gap="base">
-              <s-box
-                padding="base"
-                borderWidth="base"
-                borderRadius="base"
-                background="subdued"
-              >
-                <pre
-                  style={{
-                    margin: 0,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  <code>{JSON.stringify(fetcher.data.product, null, 2)}</code>
-                </pre>
-              </s-box>
-
-              <s-heading>productVariantsBulkUpdate mutation</s-heading>
-              <s-box
-                padding="base"
-                borderWidth="base"
-                borderRadius="base"
-                background="subdued"
-              >
-                <pre
-                  style={{
-                    margin: 0,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  <code>{JSON.stringify(fetcher.data.variant, null, 2)}</code>
-                </pre>
-              </s-box>
-
-              <s-heading>metaobjectUpsert mutation</s-heading>
-              <s-box
-                padding="base"
-                borderWidth="base"
-                borderRadius="base"
-                background="subdued"
-              >
-                <pre
-                  style={{
-                    margin: 0,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  <code>
-                    {JSON.stringify(fetcher.data.metaobject, null, 2)}
-                  </code>
-                </pre>
-              </s-box>
-            </s-stack>
-          </s-section>
-        )}
-      </s-section>
-
-      <s-section slot="aside" heading="App template specs">
-        <s-paragraph>
-          <s-text>Framework: </s-text>
-          <s-link href="https://reactrouter.com/" target="_blank">
-            React Router
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>Interface: </s-text>
-          <s-link
-            href="https://shopify.dev/docs/api/app-home/using-polaris-components"
-            target="_blank"
-          >
-            Polaris web components
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>API: </s-text>
-          <s-link
-            href="https://shopify.dev/docs/api/admin-graphql"
-            target="_blank"
-          >
-            GraphQL
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>Custom data: </s-text>
-          <s-link
-            href="https://shopify.dev/docs/apps/build/custom-data"
-            target="_blank"
-          >
-            Metafields &amp; metaobjects
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>Database: </s-text>
-          <s-link href="https://www.prisma.io/" target="_blank">
-            Prisma
-          </s-link>
-        </s-paragraph>
-      </s-section>
-
-      <s-section slot="aside" heading="Next steps">
-        <s-unordered-list>
-          <s-list-item>
-            Build an{" "}
-            <s-link
-              href="https://shopify.dev/docs/apps/getting-started/build-app-example"
-              target="_blank"
-            >
-              example app
-            </s-link>
-          </s-list-item>
-          <s-list-item>
-            Explore Shopify&apos;s API with{" "}
-            <s-link
-              href="https://shopify.dev/docs/apps/tools/graphiql-admin-api"
-              target="_blank"
-            >
-              GraphiQL
-            </s-link>
-          </s-list-item>
-        </s-unordered-list>
-      </s-section>
     </s-page>
   );
 }

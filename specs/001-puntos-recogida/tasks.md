@@ -245,20 +245,20 @@ activación directos.
 
 ### Implementation for User Story 5
 
-- [ ] T096 [P] [US5] Definir el puerto `GatewayPersonalizaciones` en `app/application/ports/gatewayPersonalizaciones.ts`
-- [ ] T097 [P] [US5] Definir el puerto `ConsultaConfiguracionTienda` en `app/application/ports/consultaConfiguracionTienda.ts`
-- [ ] T098 [US5] Implementar `GatewayPersonalizacionesShopify` (query `deliveryCustomizations` filtrada por `appKey`, `deliveryCustomizationCreate`/`Update`) en `app/infrastructure/shopify/gatewayPersonalizacionesShopify.server.ts` (depende de T096)
-- [ ] T099 [P] [US5] Tests de `GatewayPersonalizacionesShopify` (filtro por `appKey` + `handle`) en `app/infrastructure/shopify/gatewayPersonalizacionesShopify.server.test.ts`
-- [ ] T100 [US5] Implementar `ConsultaConfiguracionTiendaShopify` (`metaobjectDefinitionByType`) en `app/infrastructure/shopify/consultaConfiguracionTiendaShopify.server.ts` (depende de T097)
-- [ ] T101 [US5] Implementar el caso de uso `ObtenerEstadoConfiguracion` (total de puntos, estado de personalizaciones por handle, enlaces, título de tarifa, `semillaHabilitada`) en `app/application/use-cases/obtenerEstadoConfiguracion.ts` (depende de T100, T052)
-- [ ] T102 [US5] Implementar el caso de uso `ActivarPersonalizacionesEntrega` (crear si falta con `functionHandle`+título, activar si inactiva, no-op si activa, idempotente, retorna `{creadas, activadas, errores}`) en `app/application/use-cases/activarPersonalizacionesEntrega.ts` (depende de T098)
-- [ ] T103 [P] [US5] Tests de `ObtenerEstadoConfiguracion` en `app/application/use-cases/obtenerEstadoConfiguracion.test.ts`
-- [ ] T104 [P] [US5] Tests de `ActivarPersonalizacionesEntrega` (crear/activar/idempotente/userErrors, incluye caso de 25 personalizaciones existentes) en `app/application/use-cases/activarPersonalizacionesEntrega.test.ts`
-- [ ] T105 [US5] Registrar ambos casos de uso y sus adapters en `app/composition/contenedor.server.ts` (depende de T028, T098, T100, T101, T102)
-- [ ] T106 [US5] Implementar loader/action de `app/routes/app._index.tsx` (loader → `ObtenerEstadoConfiguracion`; action con `intencion=activar|sembrar`) (depende de T101, T102, T043)
-- [ ] T107 [US5] Implementar la UI con Polaris web components de la página admin (`s-page`, "Qué hace esta app", tabla de 5 pasos con deep links `shopify:admin/...`, "Cómo funciona", sección de modo demo, aviso "Antes de desinstalar" EC-20, botón de datos de ejemplo solo si `semillaHabilitada`) en `app/routes/app._index.tsx` (depende de T106)
-- [ ] T108 [P] [US5] Textos en español de la página admin en `app/i18n/es.ts`
-- [ ] T109 [P] [US5] Tests de `app._index.tsx` (loader falla → banner con reintento; action con errores → banner con `userErrors`) en `app/routes/app._index.test.tsx`
+- [x] T096 [P] [US5] Definir el puerto `GatewayPersonalizaciones` en `app/application/ports/gatewayPersonalizaciones.ts`
+- [x] T097 [P] [US5] Definir el puerto `ConsultaConfiguracionTienda` en `app/application/ports/consultaConfiguracionTienda.ts`
+- [x] T098 [US5] Implementar `GatewayPersonalizacionesShopify` (query `deliveryCustomizations` filtrada por `appKey`, `deliveryCustomizationCreate`/`Update`) en `app/infrastructure/shopify/gatewayPersonalizacionesShopify.server.ts` (depende de T096)
+- [x] T099 [P] [US5] Tests de `GatewayPersonalizacionesShopify` (filtro por `appKey` + `handle`) en `app/infrastructure/shopify/gatewayPersonalizacionesShopify.server.test.ts`
+- [x] T100 [US5] Implementar `ConsultaConfiguracionTiendaShopify` (`metaobjectDefinitionByType`) en `app/infrastructure/shopify/consultaConfiguracionTiendaShopify.server.ts` (depende de T097)
+- [x] T101 [US5] Implementar el caso de uso `ObtenerEstadoConfiguracion` (total de puntos, estado de personalizaciones por handle, enlaces, título de tarifa, `semillaHabilitada`) en `app/application/use-cases/obtenerEstadoConfiguracion.ts` (depende de T100, T052)
+- [x] T102 [US5] Implementar el caso de uso `ActivarPersonalizacionesEntrega` (crear si falta con `functionHandle`+título, activar si inactiva, no-op si activa, idempotente, retorna `{creadas, activadas, errores}`) en `app/application/use-cases/activarPersonalizacionesEntrega.ts` (depende de T098)
+- [x] T103 [P] [US5] Tests de `ObtenerEstadoConfiguracion` en `app/application/use-cases/obtenerEstadoConfiguracion.test.ts`
+- [x] T104 [P] [US5] Tests de `ActivarPersonalizacionesEntrega` (crear/activar/idempotente/userErrors, incluye caso de 25 personalizaciones existentes) en `app/application/use-cases/activarPersonalizacionesEntrega.test.ts`
+- [x] T105 [US5] Registrar ambos casos de uso y sus adapters en `app/composition/contenedor.server.ts` (depende de T028, T098, T100, T101, T102)
+- [x] T106 [US5] Implementar loader/action de `app/routes/app._index.tsx` (loader → `ObtenerEstadoConfiguracion`; action con `intencion=activar|sembrar`) (depende de T101, T102, T043)
+- [x] T107 [US5] Implementar la UI con Polaris web components de la página admin (`s-page`, "Qué hace esta app", tabla de 5 pasos con deep links `shopify:admin/...`, "Cómo funciona", sección de modo demo, aviso "Antes de desinstalar" EC-20, botón de datos de ejemplo solo si `semillaHabilitada`) en `app/routes/app._index.tsx` (depende de T106)
+- [x] T108 [P] [US5] Textos en español de la página admin en `app/i18n/es.ts`
+- [x] T109 [P] [US5] Tests de `app._index.tsx` (loader falla → banner con reintento; action con errores → banner con `userErrors`) en `app/routes/app._index.test.tsx`
 
 **Checkpoint**: una tienda recién instalada completa la configuración en ≤15 min solo con la página admin y el
 README; el botón "Activar" es idempotente y nunca duplica personalizaciones.
