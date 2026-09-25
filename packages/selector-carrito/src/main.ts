@@ -1,4 +1,5 @@
 import type { AtributosCarrito } from "@puntos-recogida/contratos";
+import { atributosModoDemo } from "./dominio/modoDemo.js";
 import { ControladorSelector } from "./aplicacion/ControladorSelector.js";
 import { ClienteCarritoAjax } from "./infraestructura/ClienteCarritoAjax.js";
 import { ClientePuntosProxy } from "./infraestructura/ClientePuntosProxy.js";
@@ -21,6 +22,8 @@ interface TextosConfig extends TextosSelector {
   readonly motivoBloqueo: string;
   readonly noDisponible: string;
   readonly enlaceCompacto: string;
+  readonly demoInterruptor: string;
+  readonly demoAviso: string;
 }
 
 interface ConfigInicial {
@@ -63,6 +66,13 @@ function iniciar(config: ConfigInicial): void {
       selectorInsercion: config.ajustes.selectorInsercion,
       selectorContextosCompactos: config.ajustes.selectorContextosCompactos,
       textoEnlaceCompacto: config.textos.enlaceCompacto,
+      interruptorDemo: config.ajustes.modoDemo
+        ? {
+            etiqueta: config.textos.demoInterruptor,
+            aviso: config.textos.demoAviso,
+            onCambiar: (activo) => void clienteCarrito.actualizarAtributos(atributosModoDemo(activo)),
+          }
+        : undefined,
     },
     vista,
     () => guardia.aplicar(),

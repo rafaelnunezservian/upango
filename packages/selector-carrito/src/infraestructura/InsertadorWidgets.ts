@@ -6,6 +6,12 @@ export interface OpcionesInsertadorWidgets {
   readonly selectorInsercion: string;
   readonly selectorContextosCompactos: string;
   readonly textoEnlaceCompacto: string;
+  /** Configurado solo si `modo_demo` está activo en el editor de temas (§17.6, FR-033). */
+  readonly interruptorDemo?: {
+    readonly etiqueta: string;
+    readonly aviso: string;
+    readonly onCambiar: (activo: boolean) => void;
+  };
 }
 
 const DEBOUNCE_MS = 100;
@@ -24,6 +30,8 @@ interface Grupo {
  */
 export class InsertadorWidgets implements VistaSelector {
   private readonly hosts = new Map<Element, { host: HTMLElement; compacto: boolean }>();
+  private readonly demoHosts = new Map<Element, HTMLElement>();
+  private demoActivo = false;
   private temporizador: ReturnType<typeof setTimeout> | null = null;
   private estadoActual: EstadoSelector = { tipo: "inactivo" };
   private readonly observador: MutationObserver;
@@ -51,11 +59,18 @@ export class InsertadorWidgets implements VistaSelector {
     }
   }
 
-  /** Llamado tras cada evaluación del carrito: reenvía el estado a la vista y ajusta los enlaces compactos. */
+  /**
+   * Llamado tras cada evaluación del carrito: reenvía el estado a la vista,
+   * ajusta los enlaces compactos y sincroniza el interruptor de modo demo
+   * (§17.6). Un carrito resolado es, por definición, cualquier estado
+   * distinto de `inactivo` (`ControladorSelector` solo produce `inactivo`
+   * cuando `tipo_carrito` no es resolado).
+   */
   mostrar(estado: EstadoSelector): void {
     this.estadoActual = estado;
     this.vista.mostrar(estado);
     this.actualizarEnlacesCompactos();
+    this.actualizarModoDemo(estado.tipo !== "inactivo");
   }
 
   insertar(): void {
@@ -67,6 +82,8 @@ export class InsertadorWidgets implements VistaSelector {
         host.remove();
         this.vista.eliminarInstancia(host);
         this.hosts.delete(contenedor);
+        this.demoHosts.get(contenedor)?.remove();
+        this.demoHosts.delete(contenedor);
       }
     }
 
@@ -135,15 +152,70 @@ export class InsertadorWidgets implements VistaSelector {
       host.append(enlace);
     }
 
+    const demoHost = this.crearHostDemo(grupo.contenedor);
+
     const destino = this.opciones.selectorInsercion
       ? document.querySelector(this.opciones.selectorInsercion)
       : null;
     if (destino) {
+      if (demoHost) {
+        destino.append(demoHost);
+      }
       destino.append(host);
     } else {
+      if (demoHost) {
+        grupo.primerBoton.insertAdjacentElement("beforebegin", demoHost);
+      }
       grupo.primerBoton.insertAdjacentElement("beforebegin", host);
     }
     return host;
+  }
+
+  /**
+   * Crea el interruptor de modo demo (§17.6) como elemento hermano del host
+   * del widget, para que su visibilidad no dependa del estado del carrito
+   * (a diferencia de `host`, que `VistaComboboxDom` oculta en `inactivo`).
+   * Devuelve `null` si `modo_demo` no está activo (FR-033: el interruptor no
+   * existe en absoluto con el ajuste desactivado).
+   */
+  private crearHostDemo(contenedor: Element): HTMLElement | null {
+    const interruptorDemo = this.opciones.interruptorDemo;
+    if (!interruptorDemo) {
+      return null;
+    }
+    const host = document.createElement("div");
+    host.className = "pr-demo";
+
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "pr-demo-interruptor";
+    boton.setAttribute("role", "switch");
+    boton.setAttribute("aria-checked", String(this.demoActivo));
+    boton.textContent = interruptorDemo.etiqueta;
+    boton.addEventListener("click", () => {
+      const nuevoActivo = !this.demoActivo;
+      this.actualizarModoDemo(nuevoActivo);
+      interruptorDemo.onCambiar(nuevoActivo);
+    });
+    host.append(boton);
+
+    const aviso = document.createElement("p");
+    aviso.className = "pr-demo-aviso";
+    aviso.textContent = interruptorDemo.aviso;
+    host.append(aviso);
+
+    this.demoHosts.set(contenedor, host);
+    return host;
+  }
+
+  /** Sincroniza el interruptor de modo demo con el `tipo_carrito` vigente. */
+  private actualizarModoDemo(activo: boolean): void {
+    this.demoActivo = activo;
+    for (const demoHost of this.demoHosts.values()) {
+      demoHost
+        .querySelector(".pr-demo-interruptor")
+        ?.setAttribute("aria-checked", String(activo));
+    }
   }
 
   private actualizarEnlacesCompactos(): void {

@@ -1,0 +1,126 @@
+{%- comment -%}
+  App embed "Punto de recogida" (§17.1, CT-06). Sin lógica de negocio: solo
+  serializa el estado inicial del carrito, los ajustes del editor de temas y
+  los textos traducidos para que `selector-punto.js` (packages/selector-carrito,
+  T075) arranque sin peticiones extra (FR-022). Todos los valores pasan por
+  el filtro `json`.
+{%- endcomment -%}
+
+{%- liquid
+  assign punto_id = cart.attributes['punto_id'] | default: ''
+  assign titulo_por_defecto = 'selector.titulo' | t
+  assign titulo = block.settings.titulo | default: titulo_por_defecto
+  assign texto_ayuda_por_defecto = 'selector.aviso_direccion' | t
+  assign texto_ayuda = block.settings.texto_ayuda | default: texto_ayuda_por_defecto
+-%}
+
+<div class="pr-embed-raiz" hidden {{ block.shopify_attributes }}>
+  <script type="application/json" id="pr-config">
+    {
+      "tipoCarrito": {{ cart.attributes['tipo_carrito'] | default: '' | json }},
+      "seleccion": {%- if punto_id != blank -%}
+        {
+          "punto_id": {{ punto_id | json }},
+          "punto_gid": {{ cart.attributes['punto_gid'] | default: '' | json }},
+          "punto_nombre": {{ cart.attributes['punto_nombre'] | default: '' | json }},
+          "punto_direccion": {{ cart.attributes['punto_direccion'] | default: '' | json }},
+          "punto_direccion_corta": {{ cart.attributes['punto_direccion_corta'] | default: '' | json }},
+          "punto_lat": {{ cart.attributes['punto_lat'] | default: '' | json }},
+          "punto_lng": {{ cart.attributes['punto_lng'] | default: '' | json }}
+        }
+      {%- else -%}
+        null
+      {%- endif -%},
+      "rutaRaiz": {{ routes.root_url | json }},
+      "urlPuntos": "/apps/puntos-recogida/puntos",
+      "ajustes": {
+        "titulo": {{ titulo | json }},
+        "textoAyuda": {{ texto_ayuda | json }},
+        "selectorBotonesCheckout": {{ block.settings.selector_botones_checkout | json }},
+        "selectorPagosAcelerados": {{ block.settings.selector_pagos_acelerados | json }},
+        "selectorInsercion": {{ block.settings.selector_insercion | json }},
+        "selectorContextosCompactos": {{ block.settings.selector_contextos_compactos | json }},
+        "modoDemo": {{ block.settings.modo_demo | json }}
+      },
+      "textos": {
+        "buscar": {{ 'selector.buscar' | t | json }},
+        "escribeParaBuscar": {{ 'selector.escribe_para_buscar' | t | json }},
+        "resultados": {{ 'selector.resultados' | t | json }},
+        "sinResultados": {{ 'selector.sin_resultados' | t | json }},
+        "cargando": {{ 'selector.cargando' | t | json }},
+        "errorCarga": {{ 'selector.error_carga' | t | json }},
+        "reintentar": {{ 'selector.reintentar' | t | json }},
+        "vacio": {{ 'selector.vacio' | t | json }},
+        "elegido": {{ 'selector.elegido' | t | json }},
+        "cambiar": {{ 'selector.cambiar' | t | json }},
+        "noDisponible": {{ 'selector.no_disponible' | t | json }},
+        "motivoBloqueo": {{ 'selector.motivo_bloqueo' | t | json }},
+        "enlaceCompacto": {{ 'selector.enlace_compacto' | t | json }},
+        "errorGuardado": {{ 'selector.error_guardado' | t | json }},
+        "guardando": {{ 'selector.guardando' | t | json }},
+        "avisoDireccion": {{ 'selector.aviso_direccion' | t | json }},
+        "demoInterruptor": {{ 'demo.interruptor' | t | json }},
+        "demoAviso": {{ 'demo.aviso' | t | json }}
+      }
+    }
+  </script>
+</div>
+
+{% schema %}
+{
+  "name": "Punto de recogida",
+  "target": "body",
+  "javascript": "selector-punto.js",
+  "stylesheet": "selector-punto.css",
+  "settings": [
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "t:settings.titulo.label",
+      "default": "Punto de recogida"
+    },
+    {
+      "type": "textarea",
+      "id": "texto_ayuda",
+      "label": "t:settings.texto_ayuda.label",
+      "info": "t:settings.texto_ayuda.info",
+      "default": "Este pedido se entrega en un punto de recogida. En el checkout te pediremos una dirección, pero no se usará para el envío."
+    },
+    {
+      "type": "text",
+      "id": "selector_botones_checkout",
+      "label": "t:settings.selector_botones_checkout.label",
+      "info": "t:settings.selector_botones_checkout.info",
+      "default": "button[name=\"checkout\"], input[name=\"checkout\"], a[href$=\"/checkout\"]"
+    },
+    {
+      "type": "text",
+      "id": "selector_pagos_acelerados",
+      "label": "t:settings.selector_pagos_acelerados.label",
+      "info": "t:settings.selector_pagos_acelerados.info",
+      "default": ".additional-checkout-buttons, shopify-accelerated-checkout-cart, .shopify-payment-button"
+    },
+    {
+      "type": "text",
+      "id": "selector_insercion",
+      "label": "t:settings.selector_insercion.label",
+      "info": "t:settings.selector_insercion.info",
+      "default": ""
+    },
+    {
+      "type": "text",
+      "id": "selector_contextos_compactos",
+      "label": "t:settings.selector_contextos_compactos.label",
+      "info": "t:settings.selector_contextos_compactos.info",
+      "default": "#cart-notification, cart-notification"
+    },
+    {
+      "type": "checkbox",
+      "id": "modo_demo",
+      "label": "t:settings.modo_demo.label",
+      "info": "t:settings.modo_demo.info",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

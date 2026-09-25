@@ -172,11 +172,11 @@ checkout.
 
 ### Theme app extension (app embed)
 
-- [ ] T073 [US2] Generar `extensions/selector-punto` con `shopify app generate extension --template theme_app_extension --name selector-punto`
-- [ ] T074 [US2] Escribir `blocks/selector-punto.liquid` (contenedor raíz + `<script type="application/json" id="pr-config">` + `{% schema %}` con los 6 settings de contenido de CT-06) (depende de T073)
-- [ ] T075 [US2] Configurar el script `build:embed` en `package.json` raíz para compilar `packages/selector-carrito` → `extensions/selector-punto/assets/selector-punto.js` vía esbuild (depende de T070)
-- [ ] T076 [P] [US2] Escribir `extensions/selector-punto/assets/selector-punto.css` (prefijo `pr-`, variables CSS, foco visible, objetivos táctiles ≥44px, sin reset global)
-- [ ] T077 [P] [US2] Crear `extensions/selector-punto/locales/es.default.json` (claves `selector.*`/`demo.*`) y `locales/es.default.schema.json` (depende de T074)
+- [x] T073 [US2] Generar `extensions/selector-punto` con `shopify app generate extension --template theme_app_extension --name selector-punto`
+- [x] T074 [US2] Escribir `blocks/selector-punto.liquid` (contenedor raíz + `<script type="application/json" id="pr-config">` + `{% schema %}` con los 6 settings de contenido de CT-06) (depende de T073)
+- [x] T075 [US2] Configurar el script `build:embed` en `package.json` raíz para compilar `packages/selector-carrito` → `extensions/selector-punto/assets/selector-punto.js` vía esbuild (depende de T070)
+- [x] T076 [P] [US2] Escribir `extensions/selector-punto/assets/selector-punto.css` (prefijo `pr-`, variables CSS, foco visible, objetivos táctiles ≥44px, sin reset global)
+- [x] T077 [P] [US2] Crear `extensions/selector-punto/locales/es.default.json` (claves `selector.*`/`demo.*`) y `locales/es.default.schema.json` (depende de T074)
 
 **Checkpoint**: los escenarios de US-2 pasan en Dawn y Horizon (`/cart` y drawer, escritorio y móvil); NFR-01 a
 NFR-04 medidos.
@@ -306,9 +306,9 @@ flujo completo sin devtools.
 
 ### Implementation for User Story 7
 
-- [ ] T124 [US7] Añadir el setting `modo_demo` (checkbox, apagado por defecto) al `{% schema %}` de `blocks/selector-punto.liquid` (depende de T074)
-- [ ] T125 [US7] Implementar el toggle de modo demo en `packages/selector-carrito/src/main.ts` / `InsertadorWidgets.ts` (activar → `cart/update.js` con `tipo_carrito=resolado`; desactivar → limpia `tipo_carrito` y los 7 `punto_*`) (depende de T070)
-- [ ] T126 [P] [US7] Tests de modo demo (el toggle no existe si `modo_demo=false`; activar/desactivar limpia los atributos correctos) en `packages/selector-carrito/src/**/*.test.ts`
+- [x] T124 [US7] Añadir el setting `modo_demo` (checkbox, apagado por defecto) al `{% schema %}` de `blocks/selector-punto.liquid` (depende de T074)
+- [x] T125 [US7] Implementar el toggle de modo demo en `packages/selector-carrito/src/main.ts` / `InsertadorWidgets.ts` (activar → `cart/update.js` con `tipo_carrito=resolado`; desactivar → limpia `tipo_carrito` y los 7 `punto_*`) (depende de T070)
+- [x] T126 [P] [US7] Tests de modo demo (el toggle no existe si `modo_demo=false`; activar/desactivar limpia los atributos correctos) en `packages/selector-carrito/src/**/*.test.ts`
 
 **Checkpoint**: un evaluador completa el flujo completo (buscar, elegir, checkout, pedido) activando solo
 "Modo demo" desde el editor de temas.

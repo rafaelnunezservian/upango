@@ -1,0 +1,31 @@
+{
+  "settings": {
+    "titulo": {
+      "label": "Título"
+    },
+    "texto_ayuda": {
+      "label": "Texto de ayuda",
+      "info": "Aparece bajo el título, en el widget del carrito."
+    },
+    "selector_botones_checkout": {
+      "label": "Selector de botones de checkout",
+      "info": "Selector CSS de los botones junto a los que se inserta el widget y que se bloquean sin un punto elegido."
+    },
+    "selector_pagos_acelerados": {
+      "label": "Selector de pagos acelerados",
+      "info": "Selector CSS de los contenedores de pago acelerado que se ocultan mientras no haya un punto elegido."
+    },
+    "selector_insercion": {
+      "label": "Selector de inserción (opcional)",
+      "info": "Si se completa, el widget se inserta dentro de este elemento en lugar de justo antes de los botones de checkout."
+    },
+    "selector_contextos_compactos": {
+      "label": "Selector de contextos compactos",
+      "info": "Selector CSS de las zonas donde solo se muestra un enlace breve a la página del carrito, como la notificación de carrito."
+    },
+    "modo_demo": {
+      "label": "Modo demo",
+      "info": "Solo para pruebas: desactívalo en producción. Muestra un interruptor en el carrito para simular un carrito de tipo resolado sin depender de un sistema externo."
+    }
+  }
+}
