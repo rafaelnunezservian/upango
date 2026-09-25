@@ -1,0 +1,16 @@
+query CartDeliveryOptionsTransformRunInput {
+  cart {
+    tipoCarrito: attribute(key: "tipo_carrito") {
+      value
+    }
+    puntoId: attribute(key: "punto_id") {
+      value
+    }
+    deliveryGroups {
+      deliveryOptions {
+        handle
+        title
+      }
+    }
+  }
+}

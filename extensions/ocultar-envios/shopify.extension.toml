@@ -1,0 +1,23 @@
+# Delivery Customization Function "ocultar-envios" (CT-04, T078). Escrita a
+# mano porque la sesión cloud no tiene Partners/dev store para
+# `shopify app generate extension --template delivery_customization --flavor
+# typescript --name ocultar-envios`; el formato se verificó contra ejemplos
+# reales de la misma familia en Shopify/function-examples (targeting/build).
+# El `export = "run"` sigue la convención de esos ejemplos; una sesión con
+# acceso a Partners debe confirmarlo (y regenerar este archivo) para la API
+# 2026-07 — ver progreso.md, sesión 6.
+api_version = "2026-07"
+
+[[extensions]]
+name = "Puntos de recogida · ocultar envíos"
+handle = "ocultar-envios"
+type = "function"
+
+  [[extensions.targeting]]
+  target = "cart.delivery-options.transform.run"
+  input_query = "src/cart.delivery-options.transform.graphql"
+  export = "run"
+
+  [extensions.build]
+  command = ""
+  path = "dist/function.wasm"

@@ -5,8 +5,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 4 — US-2 embed + Phase 9 — US-7 (T073–T077, T124–T126).
-- **Siguiente sesión**: Phase 5 — US-3 Functions (T078–T091).
+- **Última fase completada**: Phase 5 — US-3 Functions (T078–T091, salvo T090 pendiente de plataforma).
+- **Siguiente sesión**: Phase 6 — User Story 4 (T092–T095).
 
 ## Plan de sesiones
 
@@ -17,8 +17,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 3 | Phase 4 — US-2 backend | T046–T057 | ✅ |
 | 4 | Phase 4 — US-2 cliente de carrito | T058–T072 | ✅ |
 | 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ✅ |
-| 6 | Phase 5 — US-3 Functions | T078–T091 | ⏳ (siguiente) |
-| 7 | Phase 6 — US-4 | T092–T095 | ⏳ |
+| 6 | Phase 5 — US-3 Functions | T078–T091 | ✅ (T090 pendiente de plataforma) |
+| 7 | Phase 6 — US-4 | T092–T095 | ⏳ (siguiente) |
 | 8 | Phase 7 — US-5 | T096–T109 | ⏳ |
 | 9 | Phase 8 — US-6 | T110–T122 | ⏳ |
 | 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ⏳ |
@@ -49,6 +49,10 @@ que necesita plataforma queda en la lista de abajo.
 - Checkpoint de la extensión `selector-punto` (T073–T077, T124–T126): `shopify app dev`/`deploy` la
   registra como app embed activable en el editor de temas; falta probarla contra Dawn/Horizon reales (ver
   sesión 5) — bloqueo, combobox, modo demo y accesibilidad en el navegador.
+- T090 (medir instrucciones de `ocultar-envios`/`renombrar-recogida` con `shopify app function run` sobre el
+  fixture de peor caso, NFR-06): no se pudo completar en la sesión cloud. Ver sesión 6 para el diagnóstico
+  exacto (`shopify app function schema` devuelve 403 sin una app vinculada a Partners) y qué falta para
+  correrlo: T001 (Partners) y luego `npm run typegen`/`npm run build` en cada extensión.
 
 ## Decisiones y notas por sesión
 
@@ -192,3 +196,69 @@ que necesita plataforma queda en la lista de abajo.
   `npm run build:embed` sin errores. No se pudo activar el embed ni probar el modo demo en una dev store
   real (sin Partners/dev store en la sesión cloud) — queda para la fase de testing junto con el resto de
   checkpoints pendientes de plataforma, agregado arriba.
+
+### Sesión 6 — Phase 5 (US-3 Functions)
+
+- **Decisión pendiente de la sesión 5 (`texto_ayuda` vs. `avisoDireccion`), resuelta antes de arrancar la
+  fase**: `texto_ayuda` (CT-06) pasa a ser la fuente real del aviso bajo el título, editable por el
+  comerciante. Motivo: el valor por defecto de `texto_ayuda` en el CT-06 es literalmente el texto del
+  FR-030, y el propio Liquid ya usaba `selector.aviso_direccion | t` como *fallback* de `texto_ayuda`
+  cuando el comerciante lo vacía — dos señales de que es el mismo texto, no dos textos distintos a
+  propósito. Cambios: `VistaComboboxDom` (T066, `packages/selector-carrito`) recibe un tercer parámetro de
+  constructor `textoAyuda: string` (mismo patrón que `titulo`) y ya no lee `textos.avisoDireccion`, que se
+  quitó de `TextosSelector`; `main.ts` lo pasa desde `config.ajustes.textoAyuda`; el Liquid ya no serializa
+  `textos.avisoDireccion` (queda solo en `ajustes.textoAyuda`, que ya lo incluía). `selector.aviso_direccion`
+  sigue existiendo en los locales: ahora es *solo* el valor por defecto de `texto_ayuda` del lado de Liquid,
+  no algo que lea el JS. CT-06 en `spec.md` (§ tras el JSON de ejemplo) documenta la relación. Tests nuevos
+  en `VistaComboboxDom.test.ts` verifican que el texto mostrado es el `textoAyuda` inyectado, no uno fijo.
+- **Functions escritas a mano (T078/T079)**: `shopify app generate extension --template
+  delivery_customization` necesita una app vinculada a Partners (T001, sin acceso en la sesión cloud), igual
+  que en sesiones anteriores. Se clonó `Shopify/function-examples` (repo público, solo lectura, no forma
+  parte de este repo) como referencia de la forma real de `shopify.extension.toml`
+  (`[[extensions]] type="function"` + `[[extensions.targeting]] target/input_query/export` +
+  `[extensions.build] command/path`) y de `package.json` (`codegen` apuntando a `schema.graphql` →
+  `generated/api.ts`, dependencia `@shopify/shopify_function`). Los ejemplos clonados son de la API vieja
+  (`purchase.delivery-customization.run`, sin los tipos `deliveryOptionHide`/`deliveryOptionRename` del
+  CT-04/CT-05 de este proyecto, que usan el target nuevo `cart.delivery-options.transform.run`), así que solo
+  se reusó la *forma* de los archivos, no su contenido.
+- **`export = "run"` + `export default run` en `src/index.ts`**: el paquete `@shopify/shopify_function`
+  cambió de convención entre versiones — la 1.x (usada en los ejemplos clonados) llama a la función nombrada
+  según el `export` del TOML; la 2.x (`~2.0.0`, la que exige el `shopify app function build` real, ver
+  abajo) llama al *default export* del archivo (`import * as userFunction from "user-function"; run
+  (userFunction?.default)`, visto en el código fuente de `@shopify/shopify_function@2.0.1` bajado con `npm
+  pack`). Ambos adaptadores exportan `run` con nombre y por defecto para cubrir las dos convenciones sin
+  costo real; si una sesión futura confirma cuál usa el CLI real para la API 2026-07, se puede simplificar.
+- **`generated/api.ts` a mano**: reproduce la forma de la query de cada `.graphql` (con `Attribute { value:
+  string | null }` para los `attribute(key: ...)`, que pueden ser `null`) y de las `operations` del §18.2
+  (`deliveryOptionHide`/`deliveryOptionRename`, ambas en el `Operation` de las dos extensiones por
+  realismo, aunque cada adaptador solo use una). No se creó `schema.graphql` (no hay forma honesta de
+  reproducir a mano el schema real de la API de Functions, y un `schema.graphql` falso sería peor que no
+  tenerlo) — el `codegen` de `package.json` ya apunta a `schema.graphql`, listo para cuando
+  `shopify app function typegen` lo descargue de verdad.
+- **Se intentó `shopify app function build` de verdad** (novedad frente a sesiones anteriores: no hacía
+  falta una app vinculada para los pasos de compilación en sí). Primer intento sin `@shopify/shopify_function`
+  en `package.json`: el CLI abortó pidiendo exactamente `"@shopify/shopify_function": "~2.0.0"` — se agregó
+  esa dependencia (y el script `typegen`/`build`, y el bloque `codegen`) a ambos `package.json` con ese dato
+  real. Con eso, `build` avanza hasta `graphql-codegen`, que falla porque no existe `schema.graphql`. Se
+  probó `shopify app function schema` (subcomando dedicado a bajar el schema) y devuelve HTTP 403 del
+  servicio de autorización de Shopify: confirma que hace falta una app vinculada a Partners (T001) para
+  completar T090 (y para que `generated/api.ts` deje de ser manual). Una sesión con Partners solo necesita
+  correr `npm run typegen` y `npm run build` en cada extensión (scripts ya listos) y luego
+  `shopify app function run --input tests/fixtures/<caso>.json --export run` para T090.
+- **Fixtures (T088/T089)**: siguen el formato `{ export, target, input, output }` del §18.4 (coincide con el
+  harness real de fixtures de Shopify Functions, no es una convención inventada). 6 fixtures de
+  `ocultar-envios` (una por fila del CT-04) + 1 de peor caso (10 grupos × 20 opciones, generado con un script
+  de Node, todas las opciones ocultas: `resolado` sin punto); 3 de `renombrar-recogida` (2 filas explícitas
+  del CT-05 + una combinación que no renombra nada) + 1 de peor caso (200 opciones renombradas). Los 11
+  fixtures se verificaron programáticamente contra los adaptadores reales (`npx tsx` + import dinámico de
+  `src/index.ts`, script descartado al cerrar la sesión) antes de darlos por buenos, ya que no se puede
+  correr el harness real sobre el wasm sin T090.
+- `packages/contratos/src/coherencia.test.ts` (T019, ya existía desde la Fase 2) recorre `extensions/**/*.graphql`
+  buscando `attribute(key: "...")` y falla si alguna clave no está en `CLAVES_ATRIBUTO`: pasó sin cambios en
+  cuanto existieron los `.graphql` de esta fase, confirmando que las claves usadas (`tipo_carrito`,
+  `punto_id`, `punto_direccion_corta`) coinciden con el contrato compartido.
+- Verificado: `npm test` (169 tests OK, 6 omitidos — suma los 11 tests de `ocultar-envios` y los 9 de
+  `renombrar-recogida`), `npm run typecheck` y `npm run lint` sin errores. `npm run typecheck`/`test` por
+  workspace (`--workspace=ocultar-envios`/`renombrar-recogida`) también en verde. No se pudo completar T090
+  (medición real de instrucciones) ni generar el `schema.graphql`/`generated/api.ts` reales — pendiente de
+  plataforma, agregado arriba.

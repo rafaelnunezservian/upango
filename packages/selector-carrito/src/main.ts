@@ -11,6 +11,7 @@ import { InsertadorWidgets } from "./infraestructura/InsertadorWidgets.js";
 
 interface AjustesConfig {
   readonly titulo: string;
+  readonly textoAyuda: string;
   readonly selectorBotonesCheckout: string;
   readonly selectorPagosAcelerados: string;
   readonly selectorInsercion: string;
@@ -59,7 +60,7 @@ function iniciar(config: ConfigInicial): void {
     selectorBotonesCheckout: config.ajustes.selectorBotonesCheckout,
     selectorPagosAcelerados: config.ajustes.selectorPagosAcelerados,
   });
-  const vista = new VistaComboboxDom(config.ajustes.titulo, config.textos);
+  const vista = new VistaComboboxDom(config.ajustes.titulo, config.ajustes.textoAyuda, config.textos);
   const insertador = new InsertadorWidgets(
     {
       selectorBotonesCheckout: config.ajustes.selectorBotonesCheckout,

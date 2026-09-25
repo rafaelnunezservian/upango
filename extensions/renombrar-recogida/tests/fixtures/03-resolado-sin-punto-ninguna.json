@@ -1,0 +1,17 @@
+{
+  "export": "run",
+  "target": "cart.delivery-options.transform.run",
+  "input": {
+    "cart": {
+      "tipoCarrito": { "value": "resolado" },
+      "puntoId": { "value": "" },
+      "puntoDireccionCorta": { "value": "Pta. del Sol 1, Madrid" },
+      "deliveryGroups": [
+        {
+          "deliveryOptions": [{ "handle": "dc4b9f18d300-8ba662342", "title": "Recogida en punto de entrega" }]
+        }
+      ]
+    }
+  },
+  "output": { "operations": [] }
+}
