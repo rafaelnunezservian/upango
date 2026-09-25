@@ -1,0 +1,21 @@
+# Delivery Customization Function "renombrar-recogida" (CT-05, T079). Misma
+# nota que extensions/ocultar-envios/shopify.extension.toml: escrita a mano
+# porque la sesión cloud no puede correr
+# `shopify app generate extension --template delivery_customization --flavor
+# typescript --name renombrar-recogida`. Pendiente de confirmar contra una
+# app vinculada real — ver progreso.md, sesión 6.
+api_version = "2026-07"
+
+[[extensions]]
+name = "Puntos de recogida · renombrar recogida"
+handle = "renombrar-recogida"
+type = "function"
+
+  [[extensions.targeting]]
+  target = "cart.delivery-options.transform.run"
+  input_query = "src/cart.delivery-options.transform.graphql"
+  export = "run"
+
+  [extensions.build]
+  command = ""
+  path = "dist/function.wasm"

@@ -194,20 +194,20 @@ resolado+punto, (b) resolado sin punto vía `/checkout` directo, (c) carrito nor
 
 ### Implementation for User Story 3
 
-- [ ] T078 [P] [US3] Generar `extensions/ocultar-envios` con `shopify app generate extension --template delivery_customization --flavor typescript --name ocultar-envios`
-- [ ] T079 [P] [US3] Generar `extensions/renombrar-recogida` con el mismo template y `--name renombrar-recogida`
-- [ ] T080 [P] [US3] Escribir la query CT-04 en `extensions/ocultar-envios/src/cart.delivery-options.transform.graphql`
-- [ ] T081 [P] [US3] Escribir la query CT-05 (incluye `puntoDireccionCorta`) en `extensions/renombrar-recogida/src/cart.delivery-options.transform.graphql`
-- [ ] T082 [US3] Implementar el núcleo puro `decidirOcultamiento` (tabla de decisión CT-04, fail-closed) en `extensions/ocultar-envios/src/dominio/decidirOcultamiento.ts` (depende de T080, T018)
-- [ ] T083 [US3] Implementar el núcleo puro `decidirRenombre` (tabla CT-05 + `formatearTituloRecogida`) en `extensions/renombrar-recogida/src/dominio/decidirRenombre.ts` (depende de T081, T017)
-- [ ] T084 [US3] Implementar el adapter `src/index.ts` de `ocultar-envios` (mapea el input generado de Shopify al núcleo puro y produce `deliveryOptionHide`) (depende de T082)
-- [ ] T085 [US3] Implementar el adapter equivalente de `renombrar-recogida` (produce `deliveryOptionRename`) (depende de T083)
-- [ ] T086 [P] [US3] Tests unitarios de `decidirOcultamiento` (6 filas de la tabla CT-04 + casos límite: `tipo_carrito` vacío/mayúsculas, `punto_id` vacío/espacios, múltiples grupos de entrega) en `extensions/ocultar-envios/src/dominio/decidirOcultamiento.test.ts`
-- [ ] T087 [P] [US3] Tests unitarios de `decidirRenombre` (3 casos de CT-05 + título nulo, dirección corta >60 caracteres, caracteres de control, variantes de mayúsculas/acentos del título de tarifa) en `extensions/renombrar-recogida/src/dominio/decidirRenombre.test.ts`
-- [ ] T088 [P] [US3] Crear fixtures wasm por fila de CT-04 + caso peor (10 grupos × 20 opciones) en `extensions/ocultar-envios/tests/fixtures/*.json`
-- [ ] T089 [P] [US3] Crear fixtures wasm equivalentes en `extensions/renombrar-recogida/tests/fixtures/*.json`
-- [ ] T090 [P] [US3] Medir con `shopify app function run` el presupuesto de instrucciones de ambas Functions sobre el fixture de caso peor y verificar ≤50% del límite de la plataforma (NFR-06)
-- [ ] T091 [US3] Añadir la dependencia `@puntos-recogida/contratos` a `package.json` de ambas extensiones (depende de T078, T079, T017, T018)
+- [x] T078 [P] [US3] Generar `extensions/ocultar-envios` con `shopify app generate extension --template delivery_customization --flavor typescript --name ocultar-envios`
+- [x] T079 [P] [US3] Generar `extensions/renombrar-recogida` con el mismo template y `--name renombrar-recogida`
+- [x] T080 [P] [US3] Escribir la query CT-04 en `extensions/ocultar-envios/src/cart.delivery-options.transform.graphql`
+- [x] T081 [P] [US3] Escribir la query CT-05 (incluye `puntoDireccionCorta`) en `extensions/renombrar-recogida/src/cart.delivery-options.transform.graphql`
+- [x] T082 [US3] Implementar el núcleo puro `decidirOcultamiento` (tabla de decisión CT-04, fail-closed) en `extensions/ocultar-envios/src/dominio/decidirOcultamiento.ts` (depende de T080, T018)
+- [x] T083 [US3] Implementar el núcleo puro `decidirRenombre` (tabla CT-05 + `formatearTituloRecogida`) en `extensions/renombrar-recogida/src/dominio/decidirRenombre.ts` (depende de T081, T017)
+- [x] T084 [US3] Implementar el adapter `src/index.ts` de `ocultar-envios` (mapea el input generado de Shopify al núcleo puro y produce `deliveryOptionHide`) (depende de T082)
+- [x] T085 [US3] Implementar el adapter equivalente de `renombrar-recogida` (produce `deliveryOptionRename`) (depende de T083)
+- [x] T086 [P] [US3] Tests unitarios de `decidirOcultamiento` (6 filas de la tabla CT-04 + casos límite: `tipo_carrito` vacío/mayúsculas, `punto_id` vacío/espacios, múltiples grupos de entrega) en `extensions/ocultar-envios/src/dominio/decidirOcultamiento.test.ts`
+- [x] T087 [P] [US3] Tests unitarios de `decidirRenombre` (3 casos de CT-05 + título nulo, dirección corta >60 caracteres, caracteres de control, variantes de mayúsculas/acentos del título de tarifa) en `extensions/renombrar-recogida/src/dominio/decidirRenombre.test.ts`
+- [x] T088 [P] [US3] Crear fixtures wasm por fila de CT-04 + caso peor (10 grupos × 20 opciones) en `extensions/ocultar-envios/tests/fixtures/*.json`
+- [x] T089 [P] [US3] Crear fixtures wasm equivalentes en `extensions/renombrar-recogida/tests/fixtures/*.json`
+- [ ] T090 [P] [US3] Medir con `shopify app function run` el presupuesto de instrucciones de ambas Functions sobre el fixture de caso peor y verificar ≤50% del límite de la plataforma (NFR-06) — bloqueado en la sesión cloud, ver progreso.md sesión 6
+- [x] T091 [US3] Añadir la dependencia `@puntos-recogida/contratos` a `package.json` de ambas extensiones (depende de T078, T079, T017, T018)
 
 **Checkpoint**: `shopify app function run` sobre los fixtures confirma resolado+punto → 1 opción renombrada,
 resolado sin punto → 0 opciones, carrito normal → sin cambios; NFR-06 cumplido; cada Function funciona de forma

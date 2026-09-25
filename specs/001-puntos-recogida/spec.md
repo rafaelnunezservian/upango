@@ -1317,6 +1317,12 @@ Todos los valores se serializan con el filtro `json` de Liquid:
 }
 ```
 
+`ajustes.textoAyuda` es la fuente real del aviso bajo el título (FR-030): el widget (`VistaComboboxDom`,
+`packages/selector-carrito`) lo muestra tal cual, sin un texto fijo aparte en `textos`. La clave de locale
+`selector.aviso_direccion` solo se usa del lado de Liquid, como valor por defecto de `texto_ayuda` cuando el
+comerciante deja el ajuste vacío en el editor de temas; no viaja en `textos` del JSON porque ya queda
+incluida en `ajustes.textoAyuda`.
+
 ### CT-07 — Extensión de página de pedido `punto-pedido`
 
 | Clave | Valor |

@@ -16,7 +16,6 @@ export interface TextosSelector {
   readonly vacio: string;
   readonly elegido: string;
   readonly cambiar: string;
-  readonly avisoDireccion: string;
   readonly guardando: string;
   readonly errorGuardado: string;
 }
@@ -49,6 +48,7 @@ export class VistaComboboxDom implements VistaSelector {
 
   constructor(
     private readonly titulo: string,
+    private readonly textoAyuda: string,
     private readonly textos: TextosSelector,
   ) {}
 
@@ -118,7 +118,7 @@ export class VistaComboboxDom implements VistaSelector {
           host.append(this.crearMensaje(this.estadoActual.aviso, "pr-aviso"));
           vivo.textContent = this.estadoActual.aviso;
         }
-        host.append(this.crearMensaje(this.textos.avisoDireccion, "pr-aviso-direccion"));
+        host.append(this.crearMensaje(this.textoAyuda, "pr-aviso-direccion"));
         host.append(this.crearCombobox(host, local, vivo));
         break;
       case "guardando":
@@ -184,7 +184,7 @@ export class VistaComboboxDom implements VistaSelector {
 
     const aviso = document.createElement("p");
     aviso.className = "pr-aviso-direccion";
-    aviso.textContent = this.textos.avisoDireccion;
+    aviso.textContent = this.textoAyuda;
     tarjeta.append(aviso);
 
     return tarjeta;

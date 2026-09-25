@@ -1,0 +1,18 @@
+{
+  "export": "run",
+  "target": "cart.delivery-options.transform.run",
+  "input": {
+    "cart": {
+      "tipoCarrito": { "value": "resolado" },
+      "puntoId": { "value": "" },
+      "deliveryGroups": [
+        {
+          "deliveryOptions": [{ "handle": "dc4b9f18d300-8ba662342", "title": "Recogida en punto de entrega" }]
+        }
+      ]
+    }
+  },
+  "output": {
+    "operations": [{ "deliveryOptionHide": { "deliveryOptionHandle": "dc4b9f18d300-8ba662342" } }]
+  }
+}

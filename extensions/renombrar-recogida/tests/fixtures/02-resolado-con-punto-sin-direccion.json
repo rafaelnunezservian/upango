@@ -1,0 +1,26 @@
+{
+  "export": "run",
+  "target": "cart.delivery-options.transform.run",
+  "input": {
+    "cart": {
+      "tipoCarrito": { "value": "resolado" },
+      "puntoId": { "value": "PR-MAD-001" },
+      "puntoDireccionCorta": { "value": null },
+      "deliveryGroups": [
+        {
+          "deliveryOptions": [{ "handle": "dc4b9f18d300-8ba662342", "title": "Recogida en punto de entrega" }]
+        }
+      ]
+    }
+  },
+  "output": {
+    "operations": [
+      {
+        "deliveryOptionRename": {
+          "deliveryOptionHandle": "dc4b9f18d300-8ba662342",
+          "title": "Recogida en punto de entrega · no se usará tu dirección"
+        }
+      }
+    ]
+  }
+}

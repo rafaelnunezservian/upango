@@ -1,0 +1,18 @@
+{
+  "export": "run",
+  "target": "cart.delivery-options.transform.run",
+  "input": {
+    "cart": {
+      "tipoCarrito": { "value": "resolado" },
+      "puntoId": { "value": null },
+      "deliveryGroups": [
+        {
+          "deliveryOptions": [{ "handle": "dc4b9f18d300-standard", "title": "Estándar" }]
+        }
+      ]
+    }
+  },
+  "output": {
+    "operations": [{ "deliveryOptionHide": { "deliveryOptionHandle": "dc4b9f18d300-standard" } }]
+  }
+}

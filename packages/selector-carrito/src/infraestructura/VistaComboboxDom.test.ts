@@ -14,11 +14,12 @@ const textos: TextosSelector = {
   vacio: "No hay puntos de recogida disponibles. Contacta con la tienda.",
   elegido: "Elegiste: {nombre}",
   cambiar: "Cambiar",
-  avisoDireccion:
-    "Este pedido se entrega en un punto de recogida. En el checkout te pediremos una dirección, pero no se usará para el envío.",
   guardando: "Guardando…",
   errorGuardado: "No se pudo guardar el punto",
 };
+
+const textoAyuda =
+  "Este pedido se entrega en un punto de recogida. En el checkout te pediremos una dirección, pero no se usará para el envío.";
 
 const punto: PuntoRecogidaDto = {
   id: "PR-001",
@@ -35,10 +36,10 @@ describe("VistaComboboxDom", () => {
     document.body.innerHTML = "";
   });
 
-  it("en sin_seleccion renderiza un combobox ARIA con la lista de puntos", () => {
+  it("en sin_seleccion renderiza un combobox ARIA con la lista de puntos y el texto de ayuda (CT-06 texto_ayuda)", () => {
     const host = document.createElement("div");
     document.body.append(host);
-    const vista = new VistaComboboxDom("Punto de recogida", textos);
+    const vista = new VistaComboboxDom("Punto de recogida", textoAyuda, textos);
     vista.registrarInstancia(host);
 
     vista.mostrar({ tipo: "sin_seleccion", puntos: [punto] });
@@ -48,12 +49,26 @@ describe("VistaComboboxDom", () => {
     const listbox = host.querySelector('[role="listbox"]')!;
     expect(listbox.querySelectorAll('[role="option"]').length).toBe(1);
     expect(listbox.textContent).toContain(punto.nombre);
+    expect(host.querySelector(".pr-aviso-direccion")?.textContent).toBe(textoAyuda);
+  });
+
+  it("usa el textoAyuda inyectado (ajustes.textoAyuda), editable por el comerciante, no un texto fijo", () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const vista = new VistaComboboxDom("Punto de recogida", "Aviso personalizado del comerciante", textos);
+    vista.registrarInstancia(host);
+
+    vista.mostrar({ tipo: "sin_seleccion", puntos: [punto] });
+
+    expect(host.querySelector(".pr-aviso-direccion")?.textContent).toBe(
+      "Aviso personalizado del comerciante",
+    );
   });
 
   it("elegir una opción de la lista llama a onElegir con el punto correspondiente", () => {
     const host = document.createElement("div");
     document.body.append(host);
-    const vista = new VistaComboboxDom("Punto de recogida", textos);
+    const vista = new VistaComboboxDom("Punto de recogida", textoAyuda, textos);
     const onElegir = vi.fn();
     vista.onElegir = onElegir;
     vista.registrarInstancia(host);
@@ -69,7 +84,7 @@ describe("VistaComboboxDom", () => {
     const puntoConHtml: PuntoRecogidaDto = { ...punto, nombre: "<img src=x onerror=alert(1)>" };
     const host = document.createElement("div");
     document.body.append(host);
-    const vista = new VistaComboboxDom("Punto de recogida", textos);
+    const vista = new VistaComboboxDom("Punto de recogida", textoAyuda, textos);
     vista.registrarInstancia(host);
     vista.mostrar({ tipo: "sin_seleccion", puntos: [puntoConHtml] });
 
@@ -89,7 +104,7 @@ describe("VistaComboboxDom", () => {
     };
     const host = document.createElement("div");
     document.body.append(host);
-    const vista = new VistaComboboxDom("Punto de recogida", textos);
+    const vista = new VistaComboboxDom("Punto de recogida", textoAyuda, textos);
     vista.registrarInstancia(host);
     vista.mostrar({ tipo: "con_seleccion", puntos: [punto], seleccion });
 
@@ -100,7 +115,7 @@ describe("VistaComboboxDom", () => {
   it("inactivo oculta la instancia", () => {
     const host = document.createElement("div");
     document.body.append(host);
-    const vista = new VistaComboboxDom("Punto de recogida", textos);
+    const vista = new VistaComboboxDom("Punto de recogida", textoAyuda, textos);
     vista.registrarInstancia(host);
     vista.mostrar({ tipo: "inactivo" });
     expect(host.hidden).toBe(true);

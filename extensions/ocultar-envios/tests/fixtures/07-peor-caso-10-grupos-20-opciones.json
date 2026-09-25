@@ -1,0 +1,1860 @@
+{
+  "export": "run",
+  "target": "cart.delivery-options.transform.run",
+  "input": {
+    "cart": {
+      "tipoCarrito": {
+        "value": "resolado"
+      },
+      "puntoId": {
+        "value": ""
+      },
+      "deliveryGroups": [
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo0-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo0-opcion1",
+              "title": "Tarifa 0-1"
+            },
+            {
+              "handle": "grupo0-opcion2",
+              "title": "Tarifa 0-2"
+            },
+            {
+              "handle": "grupo0-opcion3",
+              "title": "Tarifa 0-3"
+            },
+            {
+              "handle": "grupo0-opcion4",
+              "title": "Tarifa 0-4"
+            },
+            {
+              "handle": "grupo0-opcion5",
+              "title": "Tarifa 0-5"
+            },
+            {
+              "handle": "grupo0-opcion6",
+              "title": "Tarifa 0-6"
+            },
+            {
+              "handle": "grupo0-opcion7",
+              "title": "Tarifa 0-7"
+            },
+            {
+              "handle": "grupo0-opcion8",
+              "title": "Tarifa 0-8"
+            },
+            {
+              "handle": "grupo0-opcion9",
+              "title": "Tarifa 0-9"
+            },
+            {
+              "handle": "grupo0-opcion10",
+              "title": "Tarifa 0-10"
+            },
+            {
+              "handle": "grupo0-opcion11",
+              "title": "Tarifa 0-11"
+            },
+            {
+              "handle": "grupo0-opcion12",
+              "title": "Tarifa 0-12"
+            },
+            {
+              "handle": "grupo0-opcion13",
+              "title": "Tarifa 0-13"
+            },
+            {
+              "handle": "grupo0-opcion14",
+              "title": "Tarifa 0-14"
+            },
+            {
+              "handle": "grupo0-opcion15",
+              "title": "Tarifa 0-15"
+            },
+            {
+              "handle": "grupo0-opcion16",
+              "title": "Tarifa 0-16"
+            },
+            {
+              "handle": "grupo0-opcion17",
+              "title": "Tarifa 0-17"
+            },
+            {
+              "handle": "grupo0-opcion18",
+              "title": "Tarifa 0-18"
+            },
+            {
+              "handle": "grupo0-opcion19",
+              "title": "Tarifa 0-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo1-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo1-opcion1",
+              "title": "Tarifa 1-1"
+            },
+            {
+              "handle": "grupo1-opcion2",
+              "title": "Tarifa 1-2"
+            },
+            {
+              "handle": "grupo1-opcion3",
+              "title": "Tarifa 1-3"
+            },
+            {
+              "handle": "grupo1-opcion4",
+              "title": "Tarifa 1-4"
+            },
+            {
+              "handle": "grupo1-opcion5",
+              "title": "Tarifa 1-5"
+            },
+            {
+              "handle": "grupo1-opcion6",
+              "title": "Tarifa 1-6"
+            },
+            {
+              "handle": "grupo1-opcion7",
+              "title": "Tarifa 1-7"
+            },
+            {
+              "handle": "grupo1-opcion8",
+              "title": "Tarifa 1-8"
+            },
+            {
+              "handle": "grupo1-opcion9",
+              "title": "Tarifa 1-9"
+            },
+            {
+              "handle": "grupo1-opcion10",
+              "title": "Tarifa 1-10"
+            },
+            {
+              "handle": "grupo1-opcion11",
+              "title": "Tarifa 1-11"
+            },
+            {
+              "handle": "grupo1-opcion12",
+              "title": "Tarifa 1-12"
+            },
+            {
+              "handle": "grupo1-opcion13",
+              "title": "Tarifa 1-13"
+            },
+            {
+              "handle": "grupo1-opcion14",
+              "title": "Tarifa 1-14"
+            },
+            {
+              "handle": "grupo1-opcion15",
+              "title": "Tarifa 1-15"
+            },
+            {
+              "handle": "grupo1-opcion16",
+              "title": "Tarifa 1-16"
+            },
+            {
+              "handle": "grupo1-opcion17",
+              "title": "Tarifa 1-17"
+            },
+            {
+              "handle": "grupo1-opcion18",
+              "title": "Tarifa 1-18"
+            },
+            {
+              "handle": "grupo1-opcion19",
+              "title": "Tarifa 1-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo2-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo2-opcion1",
+              "title": "Tarifa 2-1"
+            },
+            {
+              "handle": "grupo2-opcion2",
+              "title": "Tarifa 2-2"
+            },
+            {
+              "handle": "grupo2-opcion3",
+              "title": "Tarifa 2-3"
+            },
+            {
+              "handle": "grupo2-opcion4",
+              "title": "Tarifa 2-4"
+            },
+            {
+              "handle": "grupo2-opcion5",
+              "title": "Tarifa 2-5"
+            },
+            {
+              "handle": "grupo2-opcion6",
+              "title": "Tarifa 2-6"
+            },
+            {
+              "handle": "grupo2-opcion7",
+              "title": "Tarifa 2-7"
+            },
+            {
+              "handle": "grupo2-opcion8",
+              "title": "Tarifa 2-8"
+            },
+            {
+              "handle": "grupo2-opcion9",
+              "title": "Tarifa 2-9"
+            },
+            {
+              "handle": "grupo2-opcion10",
+              "title": "Tarifa 2-10"
+            },
+            {
+              "handle": "grupo2-opcion11",
+              "title": "Tarifa 2-11"
+            },
+            {
+              "handle": "grupo2-opcion12",
+              "title": "Tarifa 2-12"
+            },
+            {
+              "handle": "grupo2-opcion13",
+              "title": "Tarifa 2-13"
+            },
+            {
+              "handle": "grupo2-opcion14",
+              "title": "Tarifa 2-14"
+            },
+            {
+              "handle": "grupo2-opcion15",
+              "title": "Tarifa 2-15"
+            },
+            {
+              "handle": "grupo2-opcion16",
+              "title": "Tarifa 2-16"
+            },
+            {
+              "handle": "grupo2-opcion17",
+              "title": "Tarifa 2-17"
+            },
+            {
+              "handle": "grupo2-opcion18",
+              "title": "Tarifa 2-18"
+            },
+            {
+              "handle": "grupo2-opcion19",
+              "title": "Tarifa 2-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo3-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo3-opcion1",
+              "title": "Tarifa 3-1"
+            },
+            {
+              "handle": "grupo3-opcion2",
+              "title": "Tarifa 3-2"
+            },
+            {
+              "handle": "grupo3-opcion3",
+              "title": "Tarifa 3-3"
+            },
+            {
+              "handle": "grupo3-opcion4",
+              "title": "Tarifa 3-4"
+            },
+            {
+              "handle": "grupo3-opcion5",
+              "title": "Tarifa 3-5"
+            },
+            {
+              "handle": "grupo3-opcion6",
+              "title": "Tarifa 3-6"
+            },
+            {
+              "handle": "grupo3-opcion7",
+              "title": "Tarifa 3-7"
+            },
+            {
+              "handle": "grupo3-opcion8",
+              "title": "Tarifa 3-8"
+            },
+            {
+              "handle": "grupo3-opcion9",
+              "title": "Tarifa 3-9"
+            },
+            {
+              "handle": "grupo3-opcion10",
+              "title": "Tarifa 3-10"
+            },
+            {
+              "handle": "grupo3-opcion11",
+              "title": "Tarifa 3-11"
+            },
+            {
+              "handle": "grupo3-opcion12",
+              "title": "Tarifa 3-12"
+            },
+            {
+              "handle": "grupo3-opcion13",
+              "title": "Tarifa 3-13"
+            },
+            {
+              "handle": "grupo3-opcion14",
+              "title": "Tarifa 3-14"
+            },
+            {
+              "handle": "grupo3-opcion15",
+              "title": "Tarifa 3-15"
+            },
+            {
+              "handle": "grupo3-opcion16",
+              "title": "Tarifa 3-16"
+            },
+            {
+              "handle": "grupo3-opcion17",
+              "title": "Tarifa 3-17"
+            },
+            {
+              "handle": "grupo3-opcion18",
+              "title": "Tarifa 3-18"
+            },
+            {
+              "handle": "grupo3-opcion19",
+              "title": "Tarifa 3-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo4-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo4-opcion1",
+              "title": "Tarifa 4-1"
+            },
+            {
+              "handle": "grupo4-opcion2",
+              "title": "Tarifa 4-2"
+            },
+            {
+              "handle": "grupo4-opcion3",
+              "title": "Tarifa 4-3"
+            },
+            {
+              "handle": "grupo4-opcion4",
+              "title": "Tarifa 4-4"
+            },
+            {
+              "handle": "grupo4-opcion5",
+              "title": "Tarifa 4-5"
+            },
+            {
+              "handle": "grupo4-opcion6",
+              "title": "Tarifa 4-6"
+            },
+            {
+              "handle": "grupo4-opcion7",
+              "title": "Tarifa 4-7"
+            },
+            {
+              "handle": "grupo4-opcion8",
+              "title": "Tarifa 4-8"
+            },
+            {
+              "handle": "grupo4-opcion9",
+              "title": "Tarifa 4-9"
+            },
+            {
+              "handle": "grupo4-opcion10",
+              "title": "Tarifa 4-10"
+            },
+            {
+              "handle": "grupo4-opcion11",
+              "title": "Tarifa 4-11"
+            },
+            {
+              "handle": "grupo4-opcion12",
+              "title": "Tarifa 4-12"
+            },
+            {
+              "handle": "grupo4-opcion13",
+              "title": "Tarifa 4-13"
+            },
+            {
+              "handle": "grupo4-opcion14",
+              "title": "Tarifa 4-14"
+            },
+            {
+              "handle": "grupo4-opcion15",
+              "title": "Tarifa 4-15"
+            },
+            {
+              "handle": "grupo4-opcion16",
+              "title": "Tarifa 4-16"
+            },
+            {
+              "handle": "grupo4-opcion17",
+              "title": "Tarifa 4-17"
+            },
+            {
+              "handle": "grupo4-opcion18",
+              "title": "Tarifa 4-18"
+            },
+            {
+              "handle": "grupo4-opcion19",
+              "title": "Tarifa 4-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo5-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo5-opcion1",
+              "title": "Tarifa 5-1"
+            },
+            {
+              "handle": "grupo5-opcion2",
+              "title": "Tarifa 5-2"
+            },
+            {
+              "handle": "grupo5-opcion3",
+              "title": "Tarifa 5-3"
+            },
+            {
+              "handle": "grupo5-opcion4",
+              "title": "Tarifa 5-4"
+            },
+            {
+              "handle": "grupo5-opcion5",
+              "title": "Tarifa 5-5"
+            },
+            {
+              "handle": "grupo5-opcion6",
+              "title": "Tarifa 5-6"
+            },
+            {
+              "handle": "grupo5-opcion7",
+              "title": "Tarifa 5-7"
+            },
+            {
+              "handle": "grupo5-opcion8",
+              "title": "Tarifa 5-8"
+            },
+            {
+              "handle": "grupo5-opcion9",
+              "title": "Tarifa 5-9"
+            },
+            {
+              "handle": "grupo5-opcion10",
+              "title": "Tarifa 5-10"
+            },
+            {
+              "handle": "grupo5-opcion11",
+              "title": "Tarifa 5-11"
+            },
+            {
+              "handle": "grupo5-opcion12",
+              "title": "Tarifa 5-12"
+            },
+            {
+              "handle": "grupo5-opcion13",
+              "title": "Tarifa 5-13"
+            },
+            {
+              "handle": "grupo5-opcion14",
+              "title": "Tarifa 5-14"
+            },
+            {
+              "handle": "grupo5-opcion15",
+              "title": "Tarifa 5-15"
+            },
+            {
+              "handle": "grupo5-opcion16",
+              "title": "Tarifa 5-16"
+            },
+            {
+              "handle": "grupo5-opcion17",
+              "title": "Tarifa 5-17"
+            },
+            {
+              "handle": "grupo5-opcion18",
+              "title": "Tarifa 5-18"
+            },
+            {
+              "handle": "grupo5-opcion19",
+              "title": "Tarifa 5-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo6-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo6-opcion1",
+              "title": "Tarifa 6-1"
+            },
+            {
+              "handle": "grupo6-opcion2",
+              "title": "Tarifa 6-2"
+            },
+            {
+              "handle": "grupo6-opcion3",
+              "title": "Tarifa 6-3"
+            },
+            {
+              "handle": "grupo6-opcion4",
+              "title": "Tarifa 6-4"
+            },
+            {
+              "handle": "grupo6-opcion5",
+              "title": "Tarifa 6-5"
+            },
+            {
+              "handle": "grupo6-opcion6",
+              "title": "Tarifa 6-6"
+            },
+            {
+              "handle": "grupo6-opcion7",
+              "title": "Tarifa 6-7"
+            },
+            {
+              "handle": "grupo6-opcion8",
+              "title": "Tarifa 6-8"
+            },
+            {
+              "handle": "grupo6-opcion9",
+              "title": "Tarifa 6-9"
+            },
+            {
+              "handle": "grupo6-opcion10",
+              "title": "Tarifa 6-10"
+            },
+            {
+              "handle": "grupo6-opcion11",
+              "title": "Tarifa 6-11"
+            },
+            {
+              "handle": "grupo6-opcion12",
+              "title": "Tarifa 6-12"
+            },
+            {
+              "handle": "grupo6-opcion13",
+              "title": "Tarifa 6-13"
+            },
+            {
+              "handle": "grupo6-opcion14",
+              "title": "Tarifa 6-14"
+            },
+            {
+              "handle": "grupo6-opcion15",
+              "title": "Tarifa 6-15"
+            },
+            {
+              "handle": "grupo6-opcion16",
+              "title": "Tarifa 6-16"
+            },
+            {
+              "handle": "grupo6-opcion17",
+              "title": "Tarifa 6-17"
+            },
+            {
+              "handle": "grupo6-opcion18",
+              "title": "Tarifa 6-18"
+            },
+            {
+              "handle": "grupo6-opcion19",
+              "title": "Tarifa 6-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo7-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo7-opcion1",
+              "title": "Tarifa 7-1"
+            },
+            {
+              "handle": "grupo7-opcion2",
+              "title": "Tarifa 7-2"
+            },
+            {
+              "handle": "grupo7-opcion3",
+              "title": "Tarifa 7-3"
+            },
+            {
+              "handle": "grupo7-opcion4",
+              "title": "Tarifa 7-4"
+            },
+            {
+              "handle": "grupo7-opcion5",
+              "title": "Tarifa 7-5"
+            },
+            {
+              "handle": "grupo7-opcion6",
+              "title": "Tarifa 7-6"
+            },
+            {
+              "handle": "grupo7-opcion7",
+              "title": "Tarifa 7-7"
+            },
+            {
+              "handle": "grupo7-opcion8",
+              "title": "Tarifa 7-8"
+            },
+            {
+              "handle": "grupo7-opcion9",
+              "title": "Tarifa 7-9"
+            },
+            {
+              "handle": "grupo7-opcion10",
+              "title": "Tarifa 7-10"
+            },
+            {
+              "handle": "grupo7-opcion11",
+              "title": "Tarifa 7-11"
+            },
+            {
+              "handle": "grupo7-opcion12",
+              "title": "Tarifa 7-12"
+            },
+            {
+              "handle": "grupo7-opcion13",
+              "title": "Tarifa 7-13"
+            },
+            {
+              "handle": "grupo7-opcion14",
+              "title": "Tarifa 7-14"
+            },
+            {
+              "handle": "grupo7-opcion15",
+              "title": "Tarifa 7-15"
+            },
+            {
+              "handle": "grupo7-opcion16",
+              "title": "Tarifa 7-16"
+            },
+            {
+              "handle": "grupo7-opcion17",
+              "title": "Tarifa 7-17"
+            },
+            {
+              "handle": "grupo7-opcion18",
+              "title": "Tarifa 7-18"
+            },
+            {
+              "handle": "grupo7-opcion19",
+              "title": "Tarifa 7-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo8-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo8-opcion1",
+              "title": "Tarifa 8-1"
+            },
+            {
+              "handle": "grupo8-opcion2",
+              "title": "Tarifa 8-2"
+            },
+            {
+              "handle": "grupo8-opcion3",
+              "title": "Tarifa 8-3"
+            },
+            {
+              "handle": "grupo8-opcion4",
+              "title": "Tarifa 8-4"
+            },
+            {
+              "handle": "grupo8-opcion5",
+              "title": "Tarifa 8-5"
+            },
+            {
+              "handle": "grupo8-opcion6",
+              "title": "Tarifa 8-6"
+            },
+            {
+              "handle": "grupo8-opcion7",
+              "title": "Tarifa 8-7"
+            },
+            {
+              "handle": "grupo8-opcion8",
+              "title": "Tarifa 8-8"
+            },
+            {
+              "handle": "grupo8-opcion9",
+              "title": "Tarifa 8-9"
+            },
+            {
+              "handle": "grupo8-opcion10",
+              "title": "Tarifa 8-10"
+            },
+            {
+              "handle": "grupo8-opcion11",
+              "title": "Tarifa 8-11"
+            },
+            {
+              "handle": "grupo8-opcion12",
+              "title": "Tarifa 8-12"
+            },
+            {
+              "handle": "grupo8-opcion13",
+              "title": "Tarifa 8-13"
+            },
+            {
+              "handle": "grupo8-opcion14",
+              "title": "Tarifa 8-14"
+            },
+            {
+              "handle": "grupo8-opcion15",
+              "title": "Tarifa 8-15"
+            },
+            {
+              "handle": "grupo8-opcion16",
+              "title": "Tarifa 8-16"
+            },
+            {
+              "handle": "grupo8-opcion17",
+              "title": "Tarifa 8-17"
+            },
+            {
+              "handle": "grupo8-opcion18",
+              "title": "Tarifa 8-18"
+            },
+            {
+              "handle": "grupo8-opcion19",
+              "title": "Tarifa 8-19"
+            }
+          ]
+        },
+        {
+          "deliveryOptions": [
+            {
+              "handle": "grupo9-opcion0",
+              "title": "Recogida en punto de entrega"
+            },
+            {
+              "handle": "grupo9-opcion1",
+              "title": "Tarifa 9-1"
+            },
+            {
+              "handle": "grupo9-opcion2",
+              "title": "Tarifa 9-2"
+            },
+            {
+              "handle": "grupo9-opcion3",
+              "title": "Tarifa 9-3"
+            },
+            {
+              "handle": "grupo9-opcion4",
+              "title": "Tarifa 9-4"
+            },
+            {
+              "handle": "grupo9-opcion5",
+              "title": "Tarifa 9-5"
+            },
+            {
+              "handle": "grupo9-opcion6",
+              "title": "Tarifa 9-6"
+            },
+            {
+              "handle": "grupo9-opcion7",
+              "title": "Tarifa 9-7"
+            },
+            {
+              "handle": "grupo9-opcion8",
+              "title": "Tarifa 9-8"
+            },
+            {
+              "handle": "grupo9-opcion9",
+              "title": "Tarifa 9-9"
+            },
+            {
+              "handle": "grupo9-opcion10",
+              "title": "Tarifa 9-10"
+            },
+            {
+              "handle": "grupo9-opcion11",
+              "title": "Tarifa 9-11"
+            },
+            {
+              "handle": "grupo9-opcion12",
+              "title": "Tarifa 9-12"
+            },
+            {
+              "handle": "grupo9-opcion13",
+              "title": "Tarifa 9-13"
+            },
+            {
+              "handle": "grupo9-opcion14",
+              "title": "Tarifa 9-14"
+            },
+            {
+              "handle": "grupo9-opcion15",
+              "title": "Tarifa 9-15"
+            },
+            {
+              "handle": "grupo9-opcion16",
+              "title": "Tarifa 9-16"
+            },
+            {
+              "handle": "grupo9-opcion17",
+              "title": "Tarifa 9-17"
+            },
+            {
+              "handle": "grupo9-opcion18",
+              "title": "Tarifa 9-18"
+            },
+            {
+              "handle": "grupo9-opcion19",
+              "title": "Tarifa 9-19"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "output": {
+    "operations": [
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo0-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo1-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo2-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo3-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo4-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo5-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo6-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo7-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo8-opcion19"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion0"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion1"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion2"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion3"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion4"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion5"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion6"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion7"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion8"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion9"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion10"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion11"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion12"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion13"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion14"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion15"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion16"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion17"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion18"
+        }
+      },
+      {
+        "deliveryOptionHide": {
+          "deliveryOptionHandle": "grupo9-opcion19"
+        }
+      }
+    ]
+  }
+}
