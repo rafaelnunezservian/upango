@@ -11,6 +11,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (session) {
     await procesarDesinstalacion(shop, {
       sessionStorage: contenedor.sessionStorage,
+      cachePuntos: contenedor.cachePuntos,
       registro: contenedor.registro,
     });
   }
