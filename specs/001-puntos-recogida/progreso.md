@@ -5,8 +5,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 6 — US-4 (T092–T095).
-- **Siguiente sesión**: Phase 7 — User Story 5 (T096–T109).
+- **Última fase completada**: Phase 7 — US-5 (T096–T109).
+- **Siguiente sesión**: Phase 8 — User Story 6 (T110–T122).
 
 ## Plan de sesiones
 
@@ -19,8 +19,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ✅ |
 | 6 | Phase 5 — US-3 Functions | T078–T091 | ✅ (T090 pendiente de plataforma) |
 | 7 | Phase 6 — US-4 | T092–T095 | ✅ |
-| 8 | Phase 7 — US-5 | T096–T109 | ⏳ (siguiente) |
-| 9 | Phase 8 — US-6 | T110–T122 | ⏳ |
+| 8 | Phase 7 — US-5 | T096–T109 | ✅ |
+| 9 | Phase 8 — US-6 | T110–T122 | ⏳ (siguiente) |
 | 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ⏳ |
 | 11 | Cierre: `/speckit-analyze` + `/speckit-converge` | — | ⏳ |
 
@@ -58,6 +58,13 @@ que necesita plataforma queda en la lista de abajo.
   falta confirmar en una tienda real que el comerciante puede agregarla y que el bloque "Punto de recogida"
   aparece con los 7 atributos reales de un pedido resolado (en la sesión cloud solo se pudo simular
   `shopify.attributes`/`shopify.i18n` con dobles de test).
+- Página de admin (T096–T109, ver sesión 8): `GatewayPersonalizacionesShopify` usa `deliveryCustomizations`,
+  `deliveryCustomizationCreate`/`Update` y `ConsultaConfiguracionTiendaShopify` usa
+  `metaobjectDefinitionByType` sin poder validar los campos (`functionHandle`, `shopifyFunction.appKey`,
+  `metaobjectsCount`, …) contra el esquema real 2026-07 (sin Partners en la sesión cloud, igual que las
+  Functions de la sesión 6). Falta probar en una tienda real: que "Activar" crea/activa las 2
+  personalizaciones de verdad, el deep link del paso "Puntos" (`shopify:admin/content/metaobjects/entries/
+  {tipoResuelto}`) y el del app embed con `context=apps&activateAppId=...` (EC-21, EC-22, US-5.3 a US-5.6).
 
 ## Decisiones y notas por sesión
 
@@ -319,3 +326,66 @@ que necesita plataforma queda en la lista de abajo.
   typecheck` y `npm run lint` sin errores; `npm run typecheck`/`test --workspace=punto-pedido` también en
   verde. No se pudo previsualizar el bloque en una página de estado de pedido real (sin Partners/dev store en
   la sesión cloud) — queda para la fase de testing, agregado arriba.
+
+### Sesión 8 — Phase 7 (US-5)
+
+- **`GatewayPersonalizacionesShopify` escrito contra la letra del CT (§15.4), sin poder validarlo contra el
+  esquema real**: igual que las Functions de la sesión 6, no hay Partners en la sesión cloud para correr
+  `shopify app function schema` ni para probar mutaciones reales. `crear()` envía
+  `deliveryCustomizationCreate(deliveryCustomization: { functionHandle, title, enabled: true })` porque así
+  lo dice literalmente el §15.4/FR-057 del spec, aunque la Admin API pública documentada usa normalmente
+  `functionId` (el GID de la Function, no su handle) en `DeliveryCustomizationInput`. Se prefirió seguir el
+  contrato del proyecto en vez de adivinar el campo real; una sesión con Partners debe confirmarlo contra el
+  esquema 2026-07 y corregir el nombre del campo si hace falta (y el test correspondiente en
+  `gatewayPersonalizacionesShopify.server.test.ts`, que solo verifica lo que se envía, no lo que Shopify
+  acepta).
+- **`listarDeEstaApp()` filtra por `appKey` en el cliente, no en la query**: la Admin API no tiene un
+  argumento para filtrar `deliveryCustomizations` por app, así que se pide la página completa (`first: 25`,
+  el máximo de personalizaciones por tienda según EC-22) y se descartan las de otras apps comparando
+  `shopifyFunction.appKey` con `SHOPIFY_API_KEY` del contenedor.
+- **`ConsultaConfiguracionTiendaShopify.contarPuntos()` no reutiliza `ListarPuntosRecogida`**: aunque T101
+  lista a T052 como dependencia, esa dependencia ya estaba satisfecha desde la sesión 3 (T052 es
+  `ListarPuntosRecogida`, no algo que esta sesión debía tocar). Contar puntos con
+  `metaobjectDefinitionByType { metaobjectsCount }` (§15.4) evita paginar todas las entradas solo para un
+  número, que es justamente lo que `ListarPuntosRecogida` sí necesita hacer para servir la lista completa al
+  selector del carrito.
+- **`PERSONALIZACIONES_ENTREGA` (handles + títulos) vive en `activarPersonalizacionesEntrega.ts`** y
+  `obtenerEstadoConfiguracion.ts` lo importa de ahí en vez de duplicar la lista: los títulos son literalmente
+  el `name` de `extensions/ocultar-envios/shopify.extension.toml` y
+  `extensions/renombrar-recogida/shopify.extension.toml` (sesión 6), para que la personalización creada se
+  vea con el mismo nombre que ya usa el comerciante para identificar la Function en Configuración → Envío y
+  entrega.
+- **Enlace del paso "Puntos" sin definición de metaobjeto todavía**: si `metaobjectDefinitionByType` devuelve
+  `null` (antes del primer `shopify app deploy` con el bloque CT-01), `enlaces.entradasPuntos` cae a
+  `shopify:admin/content/metaobjects` (la lista general) en vez de construir una URL con un `tipoResuelto`
+  vacío; no está en el CT literal, es la única forma razonable de no romper el deep link en ese estado.
+- **`app._index.tsx` se rediseñó por completo** (como preveían las sesiones 2 y 7): se quitó todo el demo del
+  template (`productCreate`/`productVariantsBulkUpdate`/metaobjeto `$app:example`, "Generate a product"); el
+  `loader` llama a `ObtenerEstadoConfiguracion` envuelto en `try/catch` (si falla, banner crítico con
+  "Reintentar" vía `useRevalidator`, sin relanzar el error como error boundary de la ruta, tal como pide
+  "todo el estado sale de Shopify" del §16); la `action` distingue `intencion=activar` (nueva,
+  `ActivarPersonalizacionesEntrega`) de `intencion=sembrar` (la de la sesión 2, sin cambios de comportamiento,
+  solo reubicada).
+- **Los 5 pasos son "Verificar manualmente" salvo Puntos y Personalizaciones**: Tarifa, App embed y Bloque de
+  pedido no tienen forma de consultarse por GraphQL (una tarifa de envío manual no es una entidad con API
+  propia consultable así, la activación de un app embed tampoco es legible desde la Admin API), así que su
+  "estado" en el §16 es literalmente el texto fijo "Verificar manualmente" con instrucciones, no un valor real
+  como en Puntos (conteo) o Personalizaciones (`activa`/`inactiva`/`inexistente` por delivery customization).
+- Textos en `app/i18n/es.ts` (T108): objeto plano `as const` sin librería de i18n (no hay ninguna en el
+  backend todavía, a diferencia de `shopify.i18n` de la extensión de customer account, sesión 7); dos claves
+  son funciones (`pasos.puntos.estado(total)`, `datosDeEjemplo.exito(creados)`) para interpolar sin plantillas.
+- Tests de `app._index.tsx` (T109) solo ejercitan `loader`/`action` (no el componente `Index`): el workspace
+  `app` corre Vitest en `environment: "node"` (sin jsdom), igual que el resto de rutas del backend; se
+  verifica que el `loader` devuelve `{ estado: null, error }` cuando el `admin.graphql` falla y que la
+  `action` devuelve `{ activado: { errores } }` con los `userErrors` de Shopify cuando `crear()` los reporta,
+  que es el dato que el componente usa para pintar los banners — renderizar el JSX y comprobar el HTML
+  queda fuera del alcance de este workspace sin DOM.
+- Bug propio detectado por los tests antes de cerrar la sesión: `obtenerEstadoConfiguracion` devolvía
+  `ReferenceError: semillaHabilitada is not defined` por una propiedad abreviada (`{ semillaHabilitada }`) que
+  no coincidía con el nombre del parámetro desestructurado (`habilitarSemilla`); corregido a
+  `semillaHabilitada: habilitarSemilla`.
+- Verificado: `npm test` (194 tests OK, 6 omitidos — suma los 19 nuevos: 5 de
+  `gatewayPersonalizacionesShopify.server.test.ts`, 6 de `activarPersonalizacionesEntrega.test.ts`, 3 de
+  `obtenerEstadoConfiguracion.test.ts` y 5 de `app._index.test.tsx`), `npm run typecheck` y `npm run lint`
+  sin errores. No se pudo probar "Activar" ni los deep links contra una tienda real (sin Partners/dev store
+  en la sesión cloud) — queda para la fase de testing, agregado arriba.
