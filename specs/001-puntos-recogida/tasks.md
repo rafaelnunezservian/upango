@@ -154,21 +154,21 @@ checkout.
 
 ### Paquete de cliente de carrito (`packages/selector-carrito`)
 
-- [ ] T058 [P] [US2] Crear `packages/selector-carrito` con `package.json` y `build.mjs` (esbuild iife/minify/target es2019, sin comentarios de licencia, falla si el bundle supera 20KB)
-- [ ] T059 [P] [US2] Implementar la máquina de 8 estados en `packages/selector-carrito/src/dominio/estadoCarrito.ts`
-- [ ] T060 [P] [US2] Implementar `filtroPuntos.ts` (índice de búsqueda precalculado, `filtrar(indice, consulta, limite=50)`, insensible a acentos/mayúsculas) en `packages/selector-carrito/src/dominio/filtroPuntos.ts`
-- [ ] T061 [P] [US2] Implementar `revalidacion.ts` (`evaluarSeleccion` → vigente/desactualizada/inexistente) en `packages/selector-carrito/src/dominio/revalidacion.ts`
-- [ ] T062 [P] [US2] Definir los puertos `ClienteCarrito`, `ClientePuntos`, `VistaSelector`, `GuardiaCheckout`, `ObservadorCarrito` en `packages/selector-carrito/src/aplicacion/puertos.ts`
-- [ ] T063 [US2] Implementar `ControladorSelector.ts` (orquesta la máquina de estados) en `packages/selector-carrito/src/aplicacion/ControladorSelector.ts` (depende de T059, T060, T061, T062)
-- [ ] T064 [P] [US2] Implementar `ClienteCarritoAjax.ts` (`cart.js` / `cart/update.js`) en `packages/selector-carrito/src/infraestructura/ClienteCarritoAjax.ts`
-- [ ] T065 [P] [US2] Implementar `ClientePuntosProxy.ts` (timeout 8s, 1 reintento) en `packages/selector-carrito/src/infraestructura/ClientePuntosProxy.ts`
-- [ ] T066 [P] [US2] Implementar `VistaComboboxDom.ts` (patrón ARIA 1.2 combobox, siempre `textContent`) en `packages/selector-carrito/src/infraestructura/VistaComboboxDom.ts`
-- [ ] T067 [P] [US2] Implementar `GuardiaCheckoutDom.ts` (disabled + aria-disabled, listeners en fase de captura para click/submit, oculta contenedores de pago acelerado) en `packages/selector-carrito/src/infraestructura/GuardiaCheckoutDom.ts`
-- [ ] T068 [P] [US2] Implementar `ObservadorCarritoDom.ts` (envuelve fetch/XHR para `/cart/add|change|update|clear`, pubsub `cart-update` de Dawn, eventos de carrito de Horizon, `visibilitychange`, debounce 250ms, marcador interno anti-loop) en `packages/selector-carrito/src/infraestructura/ObservadorCarritoDom.ts`
-- [ ] T069 [P] [US2] Implementar `InsertadorWidgets.ts` (agrupa botones de checkout visibles, `MutationObserver` con debounce 100ms, bloqueo simplificado en contextos compactos EC-24) en `packages/selector-carrito/src/infraestructura/InsertadorWidgets.ts`
-- [ ] T070 [US2] Implementar `main.ts` (composition root del navegador, lee `#pr-config`) en `packages/selector-carrito/src/main.ts` (depende de T063–T069)
-- [ ] T071 [P] [US2] Tests de dominio y aplicación (filtro por acentos/mayúsculas/límite/orden, revalidación, transiciones de estado, limpieza en carrito normal) con dobles en `packages/selector-carrito/src/**/*.test.ts`
-- [ ] T072 [P] [US2] Tests DOM (inserción de widgets, bloqueo con disabled+captura de click/submit, ocultamiento de pagos acelerados, ARIA básica, reinserción tras re-render) con jsdom en `packages/selector-carrito/src/infraestructura/*.test.ts`
+- [x] T058 [P] [US2] Crear `packages/selector-carrito` con `package.json` y `build.mjs` (esbuild iife/minify/target es2019, sin comentarios de licencia, falla si el bundle supera 20KB)
+- [x] T059 [P] [US2] Implementar la máquina de 8 estados en `packages/selector-carrito/src/dominio/estadoCarrito.ts`
+- [x] T060 [P] [US2] Implementar `filtroPuntos.ts` (índice de búsqueda precalculado, `filtrar(indice, consulta, limite=50)`, insensible a acentos/mayúsculas) en `packages/selector-carrito/src/dominio/filtroPuntos.ts`
+- [x] T061 [P] [US2] Implementar `revalidacion.ts` (`evaluarSeleccion` → vigente/desactualizada/inexistente) en `packages/selector-carrito/src/dominio/revalidacion.ts`
+- [x] T062 [P] [US2] Definir los puertos `ClienteCarrito`, `ClientePuntos`, `VistaSelector`, `GuardiaCheckout`, `ObservadorCarrito` en `packages/selector-carrito/src/aplicacion/puertos.ts`
+- [x] T063 [US2] Implementar `ControladorSelector.ts` (orquesta la máquina de estados) en `packages/selector-carrito/src/aplicacion/ControladorSelector.ts` (depende de T059, T060, T061, T062)
+- [x] T064 [P] [US2] Implementar `ClienteCarritoAjax.ts` (`cart.js` / `cart/update.js`) en `packages/selector-carrito/src/infraestructura/ClienteCarritoAjax.ts`
+- [x] T065 [P] [US2] Implementar `ClientePuntosProxy.ts` (timeout 8s, 1 reintento) en `packages/selector-carrito/src/infraestructura/ClientePuntosProxy.ts`
+- [x] T066 [P] [US2] Implementar `VistaComboboxDom.ts` (patrón ARIA 1.2 combobox, siempre `textContent`) en `packages/selector-carrito/src/infraestructura/VistaComboboxDom.ts`
+- [x] T067 [P] [US2] Implementar `GuardiaCheckoutDom.ts` (disabled + aria-disabled, listeners en fase de captura para click/submit, oculta contenedores de pago acelerado) en `packages/selector-carrito/src/infraestructura/GuardiaCheckoutDom.ts`
+- [x] T068 [P] [US2] Implementar `ObservadorCarritoDom.ts` (envuelve fetch/XHR para `/cart/add|change|update|clear`, pubsub `cart-update` de Dawn, eventos de carrito de Horizon, `visibilitychange`, debounce 250ms, marcador interno anti-loop) en `packages/selector-carrito/src/infraestructura/ObservadorCarritoDom.ts`
+- [x] T069 [P] [US2] Implementar `InsertadorWidgets.ts` (agrupa botones de checkout visibles, `MutationObserver` con debounce 100ms, bloqueo simplificado en contextos compactos EC-24) en `packages/selector-carrito/src/infraestructura/InsertadorWidgets.ts`
+- [x] T070 [US2] Implementar `main.ts` (composition root del navegador, lee `#pr-config`) en `packages/selector-carrito/src/main.ts` (depende de T063–T069)
+- [x] T071 [P] [US2] Tests de dominio y aplicación (filtro por acentos/mayúsculas/límite/orden, revalidación, transiciones de estado, limpieza en carrito normal) con dobles en `packages/selector-carrito/src/**/*.test.ts`
+- [x] T072 [P] [US2] Tests DOM (inserción de widgets, bloqueo con disabled+captura de click/submit, ocultamiento de pagos acelerados, ARIA básica, reinserción tras re-render) con jsdom en `packages/selector-carrito/src/infraestructura/*.test.ts`
 
 ### Theme app extension (app embed)
 

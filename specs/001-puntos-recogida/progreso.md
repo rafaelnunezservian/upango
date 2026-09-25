@@ -5,8 +5,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 4 — US-2 backend (T046–T057).
-- **Siguiente sesión**: Phase 4 — US-2 cliente de carrito (T058–T072).
+- **Última fase completada**: Phase 4 — US-2 cliente de carrito (T058–T072).
+- **Siguiente sesión**: Phase 4 — US-2 embed + Phase 9 — US-7 (T073–T077, T124–T126).
 
 ## Plan de sesiones
 
@@ -15,8 +15,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 1 | Paso 0: hook de sesión + verificación de Foundational | — | ✅ |
 | 2 | Phase 3 — US-1 | T038–T045 | ✅ |
 | 3 | Phase 4 — US-2 backend | T046–T057 | ✅ |
-| 4 | Phase 4 — US-2 cliente de carrito | T058–T072 | ⏳ (siguiente) |
-| 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ⏳ |
+| 4 | Phase 4 — US-2 cliente de carrito | T058–T072 | ✅ |
+| 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ⏳ (siguiente) |
 | 6 | Phase 5 — US-3 Functions | T078–T091 | ⏳ |
 | 7 | Phase 6 — US-4 | T092–T095 | ⏳ |
 | 8 | Phase 7 — US-5 | T096–T109 | ⏳ |
@@ -111,3 +111,34 @@ que necesita plataforma queda en la lista de abajo.
 - Verificado: `npm test` (99 tests OK, 6 omitidos), `npm run typecheck` y `npm run lint` sin errores. No se
   pudo probar contra una tienda real (sin Partners/dev store en la sesión cloud) — queda para la fase de
   testing junto con el resto de checkpoints pendientes de plataforma.
+
+### Sesión 4 — Phase 4 (US-2 cliente de carrito)
+
+- Nuevo workspace `@puntos-recogida/selector-carrito` (T058–T072): dominio puro (`estadoCarrito.ts`,
+  `filtroPuntos.ts`, `revalidacion.ts`), aplicación (`ControladorSelector.ts` + `puertos.ts`) e
+  infraestructura del navegador (`ClienteCarritoAjax`, `ClientePuntosProxy`, `VistaComboboxDom`,
+  `GuardiaCheckoutDom`, `ObservadorCarritoDom`, `InsertadorWidgets`) y el composition root `main.ts`. El
+  `build.mjs` (esbuild, IIFE/minify/es2019) genera `extensions/selector-punto/assets/selector-punto.js`
+  (18.0 KB, dentro del límite de 20 KB del NFR-03); `extensions/selector-punto/` todavía no existe como
+  extensión completa (bloques, locales, CSS) — se crea en la Fase 4 siguiente (T073–T077).
+- `estadoCarrito.ts` amplió el estado `error_guardado` con `puntoElegido` (no estaba en el §17.3 literal)
+  para que `ControladorSelector.reintentarGuardado()` pueda reintentar el mismo punto sin pedir al
+  comprador que vuelva a elegirlo; es la única desviación del contrato de estados.
+- "Cambiar" (§17.3) no es un estado nuevo: es un toggle local de `VistaComboboxDom` dentro de
+  `con_seleccion` que reabre el combobox sin tocar la guardia ni el carrito — el checkout sigue habilitado
+  mientras se busca, tal como pide la nota "sigue valiendo hasta que se elija otra".
+- En contextos compactos (EC-24), `InsertadorWidgets` no registra el host en `VistaComboboxDom`: inserta
+  directamente un `<a href="/cart">` cuyo `hidden` sincroniza con el estado (oculto en `inactivo`/
+  `con_seleccion`). La guardia bloquea esos botones igual que a cualquier otro, por selector CSS.
+- `GuardiaCheckoutDom` e `InsertadorWidgets` exponen `destruir()` (quitar listeners / desconectar el
+  `MutationObserver`) solo por aislamiento entre tests; en la página real viven hasta que se descarga, como
+  toda instancia única del composition root.
+- Cobertura de dominio/aplicación con dobles de los 5 puertos (T071); tests con jsdom para inserción,
+  bloqueo (disabled + captura de click/submit), ocultamiento de pago acelerado, ARIA básica del combobox y
+  reinserción tras `MutationObserver` (T072). `packages/selector-carrito/src/infraestructura/**` no cuenta
+  para el 90 % de T135 (solo dominio/aplicación), así que sus tests son de comportamiento, no de cobertura.
+- Se amplió `eslint.config.js` (`packages/**/*.{js,ts,mjs}`) para que `build.mjs` tenga los globals de Node
+  (`console`, `process`); es el primer `.mjs` del monorepo.
+- Verificado: `npm test` (143 tests OK, 6 omitidos), `npm run typecheck`, `npm run lint` y
+  `npm run build:embed` sin errores. No se pudo probar en un tema real de Dawn/Horizon (sin dev store en la
+  sesión cloud) — queda para la fase de testing junto con el resto de checkpoints pendientes de plataforma.

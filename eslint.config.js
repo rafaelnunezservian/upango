@@ -106,7 +106,7 @@ export default [
           "eslint.config.js",
           "shopify.server.{js,ts}",
           "**/*.server.{js,ts}",
-          "packages/**/*.{js,ts}",
+          "packages/**/*.{js,ts,mjs}",
           "deploy/**/*.{js,ts}",
           "extensions/**/*.{js,ts}",
         ],
