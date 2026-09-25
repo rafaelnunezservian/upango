@@ -275,19 +275,19 @@ luego `shopify app deploy`, e instalar la app en una dev store.
 
 ### Implementation for User Story 6
 
-- [ ] T110 [P] [US6] Escribir `Dockerfile` multi-stage (build: `node:24-alpine`, solo workspaces `app` + `packages/contratos`, build de React Router; final: `node:24-alpine`, `NODE_ENV=production`, solo deps de producción + `build/`, usuario no root, `EXPOSE 8080`)
-- [ ] T111 [P] [US6] Escribir `.dockerignore` (excluye `extensions/`, `deploy/`, `specs/`, `.specify/`, `.claude/`, `node_modules/`, `tests/`, `.env*`)
-- [ ] T112 [P] [US6] Definir los contratos TypeScript del CLI de despliegue (`ContextoDespliegue`, `ProveedorDespliegue`, `ResultadoDespliegue`, `EjecutorComandos`, CT-10) en `deploy/src/puertos/`
-- [ ] T113 [P] [US6] Crear `deploy/deploy.config.json` (forma de CT-10)
-- [ ] T114 [US6] Implementar `EjecutorComandosNode` (`child_process.spawn` sin shell, secretos pasados por stdin nunca como argumento, dry-run enmascara secretos) en `deploy/src/infraestructura/EjecutorComandosNode.ts` (depende de T112)
-- [ ] T115 [US6] Implementar `OrquestadorDespliegue` (8 pasos de §20.3, idempotente, soporta `--paso` y `--dry-run`) en `deploy/src/aplicacion/OrquestadorDespliegue.ts` (depende de T112)
-- [ ] T116 [P] [US6] Tests del orquestador (orden de pasos, `--paso`, `--dry-run`, manejo de errores, códigos de salida 0-4) con proveedor falso en `deploy/src/aplicacion/OrquestadorDespliegue.test.ts`
-- [ ] T117 [US6] Implementar `ProveedorGcp` (`verificarPrerrequisitos`/`prepararInfraestructura`/`publicarSecretos`/`construirImagen`/`desplegarServicio`/`actualizarVariables` vía comandos `gcloud`, variables por `--env-vars-file` temporal, `--allow-unauthenticated`, cálculo determinista de la URL de Cloud Run antes del primer deploy) en `deploy/src/proveedores/gcp/` (depende de T114, T115)
-- [ ] T118 [P] [US6] Tests de `ProveedorGcp` (comandos exactos por paso, idempotencia, secretos por stdin, archivo temporal de env vars eliminado tras usarse) con `EjecutorComandos` falso en `deploy/src/proveedores/gcp/*.test.ts`
-- [ ] T119 [P] [US6] Crear el esqueleto documentado `deploy/src/proveedores/plantilla/` (lanza `ProveedorNoImplementadoError`)
-- [ ] T120 [US6] Implementar el registro de proveedores en `deploy/src/proveedores/registro.ts` (depende de T117, T119)
-- [ ] T121 [US6] Implementar `deploy/src/cli.ts` (parseo de `--proveedor`/`--dry-run`/`--paso`/`--etiqueta`, códigos de salida 0-4, lee `deploy.config.json` + secretos de `.env.deploy`/env) (depende de T115, T120)
-- [ ] T122 [P] [US6] Añadir los scripts `deploy` y `deploy:shopify` en `package.json` raíz (depende de T121)
+- [x] T110 [P] [US6] Escribir `Dockerfile` multi-stage (build: `node:24-alpine`, solo workspaces `app` + `packages/contratos`, build de React Router; final: `node:24-alpine`, `NODE_ENV=production`, solo deps de producción + `build/`, usuario no root, `EXPOSE 8080`)
+- [x] T111 [P] [US6] Escribir `.dockerignore` (excluye `extensions/`, `deploy/`, `specs/`, `.specify/`, `.claude/`, `node_modules/`, `tests/`, `.env*`)
+- [x] T112 [P] [US6] Definir los contratos TypeScript del CLI de despliegue (`ContextoDespliegue`, `ProveedorDespliegue`, `ResultadoDespliegue`, `EjecutorComandos`, CT-10) en `deploy/src/puertos/`
+- [x] T113 [P] [US6] Crear `deploy/deploy.config.json` (forma de CT-10)
+- [x] T114 [US6] Implementar `EjecutorComandosNode` (`child_process.spawn` sin shell, secretos pasados por stdin nunca como argumento, dry-run enmascara secretos) en `deploy/src/infraestructura/EjecutorComandosNode.ts` (depende de T112)
+- [x] T115 [US6] Implementar `OrquestadorDespliegue` (8 pasos de §20.3, idempotente, soporta `--paso` y `--dry-run`) en `deploy/src/aplicacion/OrquestadorDespliegue.ts` (depende de T112)
+- [x] T116 [P] [US6] Tests del orquestador (orden de pasos, `--paso`, `--dry-run`, manejo de errores, códigos de salida 0-4) con proveedor falso en `deploy/src/aplicacion/OrquestadorDespliegue.test.ts`
+- [x] T117 [US6] Implementar `ProveedorGcp` (`verificarPrerrequisitos`/`prepararInfraestructura`/`publicarSecretos`/`construirImagen`/`desplegarServicio`/`actualizarVariables` vía comandos `gcloud`, variables por `--env-vars-file` temporal, `--allow-unauthenticated`, cálculo determinista de la URL de Cloud Run antes del primer deploy) en `deploy/src/proveedores/gcp/` (depende de T114, T115)
+- [x] T118 [P] [US6] Tests de `ProveedorGcp` (comandos exactos por paso, idempotencia, secretos por stdin, archivo temporal de env vars eliminado tras usarse) con `EjecutorComandos` falso en `deploy/src/proveedores/gcp/*.test.ts`
+- [x] T119 [P] [US6] Crear el esqueleto documentado `deploy/src/proveedores/plantilla/` (lanza `ProveedorNoImplementadoError`)
+- [x] T120 [US6] Implementar el registro de proveedores en `deploy/src/proveedores/registro.ts` (depende de T117, T119)
+- [x] T121 [US6] Implementar `deploy/src/cli.ts` (parseo de `--proveedor`/`--dry-run`/`--paso`/`--etiqueta`, códigos de salida 0-4, lee `deploy.config.json` + secretos de `.env.deploy`/env) (depende de T115, T120)
+- [x] T122 [P] [US6] Añadir los scripts `deploy` y `deploy:shopify` en `package.json` raíz (depende de T121)
 - [ ] T123 [P] [US6] Validar el contrato de `GET /healthz` (200) end-to-end tras un despliegue real en GCP (usa la ruta de T035)
 
 **Checkpoint**: despliegue en un proyecto GCP vacío en ≤30 min con un solo comando (SC-009); `--dry-run` nunca

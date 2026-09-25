@@ -1,0 +1,23 @@
+{
+  "servicio": "puntos-recogida",
+  "puerto": 8080,
+  "recursos": { "cpu": 1, "memoriaMiB": 512, "instanciasMin": 0, "instanciasMax": 3, "concurrencia": 80 },
+  "variables": {
+    "NODE_ENV": "production",
+    "SESSION_STORAGE_DRIVER": "firestore",
+    "SCOPES": "write_delivery_customizations,write_app_proxy",
+    "PUNTOS_CACHE_TTL_SEGUNDOS": "300",
+    "LOG_LEVEL": "info"
+  },
+  "variablesDesdeEntorno": ["SHOPIFY_API_KEY", "SHOPIFY_APP_URL"],
+  "secretos": { "SHOPIFY_API_SECRET": "shopify-api-secret" },
+  "proveedores": {
+    "gcp": {
+      "proyecto": "<id-del-proyecto>",
+      "region": "europe-southwest1",
+      "repositorioImagenes": "puntos-recogida",
+      "cuentaServicio": "puntos-recogida-run",
+      "baseFirestore": "(default)"
+    }
+  }
+}
