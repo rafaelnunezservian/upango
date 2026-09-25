@@ -5,8 +5,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 4 — US-2 cliente de carrito (T058–T072).
-- **Siguiente sesión**: Phase 4 — US-2 embed + Phase 9 — US-7 (T073–T077, T124–T126).
+- **Última fase completada**: Phase 4 — US-2 embed + Phase 9 — US-7 (T073–T077, T124–T126).
+- **Siguiente sesión**: Phase 5 — US-3 Functions (T078–T091).
 
 ## Plan de sesiones
 
@@ -16,8 +16,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 2 | Phase 3 — US-1 | T038–T045 | ✅ |
 | 3 | Phase 4 — US-2 backend | T046–T057 | ✅ |
 | 4 | Phase 4 — US-2 cliente de carrito | T058–T072 | ✅ |
-| 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ⏳ (siguiente) |
-| 6 | Phase 5 — US-3 Functions | T078–T091 | ⏳ |
+| 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ✅ |
+| 6 | Phase 5 — US-3 Functions | T078–T091 | ⏳ (siguiente) |
 | 7 | Phase 6 — US-4 | T092–T095 | ⏳ |
 | 8 | Phase 7 — US-5 | T096–T109 | ⏳ |
 | 9 | Phase 8 — US-6 | T110–T122 | ⏳ |
@@ -46,6 +46,9 @@ que necesita plataforma queda en la lista de abajo.
 - Checkpoint de US-1: `shopify app deploy` despliega la definición del metaobjeto `$app:punto_recogida`
   y el CRUD nativo del admin valida los 6 campos (T040/T041 no se pudieron probar contra una tienda real
   en la sesión cloud).
+- Checkpoint de la extensión `selector-punto` (T073–T077, T124–T126): `shopify app dev`/`deploy` la
+  registra como app embed activable en el editor de temas; falta probarla contra Dawn/Horizon reales (ver
+  sesión 5) — bloqueo, combobox, modo demo y accesibilidad en el navegador.
 
 ## Decisiones y notas por sesión
 
@@ -142,3 +145,50 @@ que necesita plataforma queda en la lista de abajo.
 - Verificado: `npm test` (143 tests OK, 6 omitidos), `npm run typecheck`, `npm run lint` y
   `npm run build:embed` sin errores. No se pudo probar en un tema real de Dawn/Horizon (sin dev store en la
   sesión cloud) — queda para la fase de testing junto con el resto de checkpoints pendientes de plataforma.
+
+### Sesión 5 — Phase 4 (US-2 embed) + Phase 9 (US-7)
+
+- `extensions/selector-punto/shopify.extension.toml` se escribió a mano (`name = "selector-punto"`,
+  `type = "theme"`) porque `shopify app generate extension --template theme_app_extension` necesita una
+  app vinculada a Partners (T001, sin acceso en la sesión cloud); el formato se confirmó clonando
+  `Shopify/theme-extension-getting-started` como referencia y con la guía oficial de configuración de
+  theme app extensions (no se pudo acceder a `shopify.dev` desde la sesión, bloqueado por el proxy de
+  salida).
+- `blocks/selector-punto.liquid` arma el JSON de `#pr-config` a mano (Liquid no tiene literales de
+  objeto): cada valor pasa por `| json`, y `seleccion` es `null` o el objeto de 7 campos según
+  `cart.attributes['punto_id']`. Se agregaron dos *fallbacks* con la clave `| t` no documentados
+  literalmente en el CT-06 pero coherentes con FR-035 (locales en español): si el comerciante vacía
+  `titulo` o `texto_ayuda` en el editor, se usa la traducción (`selector.titulo` / `selector.aviso_direccion`)
+  en lugar de una cadena vacía.
+- **`ajustes.textoAyuda` en el JSON vs. `textos.avisoDireccion` en `VistaComboboxDom`**: el CT-06 define
+  `texto_ayuda` como ajuste editable por el comerciante y también lista `selector.aviso_direccion` como
+  clave de locale; pero `VistaComboboxDom` (T066, sesión 4) ya usa `textos.avisoDireccion` (fijo, del
+  locale) para el aviso bajo el título y no lee `ajustes.textoAyuda`. Se decidió NO tocar
+  `VistaComboboxDom` (fuera del alcance T073–T077/T124–T126, con tests ya verdes de la sesión 4): el
+  Liquid igual serializa `ajustes.textoAyuda` porque el contrato CT-06 lo exige, aunque hoy no lo consuma
+  ningún JS. Pendiente para una sesión futura: decidir si `textoAyuda` reemplaza a `avisoDireccion` como
+  fuente del aviso (hacerlo editable de verdad) o si son dos textos distintos a propósito.
+- **Modo demo (T124–T126)**: el interruptor vive en un host DOM separado del `.pr-host` que controla
+  `VistaComboboxDom` (que lo oculta por completo en `inactivo`), para que sea visible "aunque el carrito
+  no sea resolado" (§17.6) sin pelear con esa lógica. `InsertadorWidgets.mostrar()` lo sincroniza con
+  `estado.tipo !== "inactivo"` — que equivale exactamente a "carrito resolado", porque
+  `ControladorSelector` solo produce `inactivo` cuando no lo es — así que no hace falta una lectura extra
+  de `/cart.js`: el interruptor viaja gratis en el mismo flujo de estados del selector. Los atributos que
+  se escriben (activar → `tipo_carrito=resolado`; desactivar → `tipo_carrito` y los 7 `punto_*` vacíos) se
+  aislaron en `src/dominio/modoDemo.ts` (`atributosModoDemo`) para poder testearlos sin DOM y sumar a la
+  cobertura de dominio (T135). El propio `ObservadorCarritoDom` (envoltorio de `fetch`, ya implementado en
+  T068) detecta el `POST /cart/update.js` del interruptor y dispara la reevaluación normal del carrito, sin
+  cableado adicional.
+- El bundle de `packages/selector-carrito` quedó en 19 698 bytes tras sumar el interruptor de modo demo,
+  a 782 bytes del límite de 20 KB (NFR-03, `build.mjs` corta el build si se supera). Queda poco margen:
+  una sesión futura que agregue código a este paquete debe vigilar el tamaño del bundle de cerca.
+- `extensions/selector-punto/assets/selector-punto.css` (T076): variables CSS con `currentColor`/`inherit`
+  para heredar tipografía y color del tema, sin ningún selector fuera de `.pr-*` (sin reset global),
+  objetivos táctiles de 44px en botones/input/opciones/interruptor y `:focus-visible` visible.
+- `locales/es.default.json` y `es.default.schema.json` (T077): las claves `{total}`/`{n}`/`{nombre}` usan
+  llaves simples a propósito (no `{{ }}` de Shopify), porque las interpola `interpolar()` en
+  `VistaComboboxDom.ts` (T066) del lado del cliente, no el filtro `| t` de Liquid.
+- Verificado: `npm test` (148 tests OK, 6 omitidos), `npm run typecheck`, `npm run lint` y
+  `npm run build:embed` sin errores. No se pudo activar el embed ni probar el modo demo en una dev store
+  real (sin Partners/dev store en la sesión cloud) — queda para la fase de testing junto con el resto de
+  checkpoints pendientes de plataforma, agregado arriba.

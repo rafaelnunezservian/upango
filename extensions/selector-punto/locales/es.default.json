@@ -1,0 +1,25 @@
+{
+  "selector": {
+    "titulo": "Punto de recogida",
+    "buscar": "Busca por nombre, dirección o ciudad",
+    "escribe_para_buscar": "Escribe para buscar entre {total} puntos",
+    "resultados": "{n} resultados",
+    "sin_resultados": "Sin resultados",
+    "cargando": "Cargando puntos de recogida…",
+    "error_carga": "No se pudieron cargar los puntos de recogida.",
+    "reintentar": "Reintentar",
+    "vacio": "No hay puntos de recogida disponibles. Contacta con la tienda.",
+    "elegido": "Recogerás tu pedido en {nombre}",
+    "cambiar": "Cambiar",
+    "no_disponible": "El punto que elegiste ya no está disponible. Elige otro.",
+    "motivo_bloqueo": "Elige un punto de recogida para continuar",
+    "enlace_compacto": "Elige tu punto de recogida",
+    "error_guardado": "No se pudo guardar el punto elegido. Inténtalo de nuevo.",
+    "guardando": "Guardando…",
+    "aviso_direccion": "Este pedido se entrega en un punto de recogida. En el checkout te pediremos una dirección, pero no se usará para el envío."
+  },
+  "demo": {
+    "interruptor": "Simular carrito resolado (modo demo)",
+    "aviso": "Solo para pruebas: desactívalo en producción"
+  }
+}

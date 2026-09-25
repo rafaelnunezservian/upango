@@ -1,0 +1,6 @@
+# Theme app extension "Punto de recogida" (§17.1). Generada a mano porque la
+# sesión cloud no tiene Partners/dev store para `shopify app generate
+# extension --template theme_app_extension --name selector-punto` (T073); el
+# contenido reproduce lo que ese comando escribiría.
+name = "selector-punto"
+type = "theme"
