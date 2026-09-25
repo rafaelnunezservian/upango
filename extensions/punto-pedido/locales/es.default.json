@@ -1,0 +1,8 @@
+{
+  "punto_pedido": {
+    "titulo": "Punto de recogida",
+    "identificador": "Identificador: {punto_id}",
+    "ver_en_mapa": "Ver en el mapa",
+    "aviso": "Recoge tu pedido en este punto cuando te avisemos de que está listo."
+  }
+}

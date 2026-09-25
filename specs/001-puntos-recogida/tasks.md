@@ -225,10 +225,10 @@ verificar "Detalles adicionales" en el admin y la página de estado del pedido.
 
 ### Implementation for User Story 4
 
-- [ ] T092 [P] [US4] Generar `extensions/punto-pedido` (customer account UI extension, Preact/TypeScript, target `customer-account.order-status.block.render`)
-- [ ] T093 [US4] Implementar `src/PuntoPedido.tsx` (`leerSeleccionDeAtributos` sobre `shopify.attributes`, sección con nombre/dirección completa/`Identificador: {punto_id}`/enlace "Ver en el mapa" a Google Maps, sin peticiones de red) en `extensions/punto-pedido/src/PuntoPedido.tsx` (depende de T092, T018)
-- [ ] T094 [P] [US4] Crear `extensions/punto-pedido/locales/es.default.json`
-- [ ] T095 [P] [US4] Tests de `PuntoPedido.tsx` (no renderiza nada si `punto_id` está ausente; omite el enlace de mapa si las coordenadas son inválidas) en `extensions/punto-pedido/src/PuntoPedido.test.tsx`
+- [x] T092 [P] [US4] Generar `extensions/punto-pedido` (customer account UI extension, Preact/TypeScript, target `customer-account.order-status.block.render`)
+- [x] T093 [US4] Implementar `src/PuntoPedido.tsx` (`leerSeleccionDeAtributos` sobre `shopify.attributes`, sección con nombre/dirección completa/`Identificador: {punto_id}`/enlace "Ver en el mapa" a Google Maps, sin peticiones de red) en `extensions/punto-pedido/src/PuntoPedido.tsx` (depende de T092, T018)
+- [x] T094 [P] [US4] Crear `extensions/punto-pedido/locales/es.default.json`
+- [x] T095 [P] [US4] Tests de `PuntoPedido.tsx` (no renderiza nada si `punto_id` está ausente; omite el enlace de mapa si las coordenadas son inválidas) en `extensions/punto-pedido/src/PuntoPedido.test.tsx`
 
 **Checkpoint**: el pedido conserva los 8 atributos aunque el punto se edite o elimine después; el bloque
 "Punto de recogida" es visible en la página de estado del pedido solo para pedidos resolados.

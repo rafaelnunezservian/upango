@@ -1,0 +1,21 @@
+{
+  "name": "punto-pedido",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.3.0",
+    "@puntos-recogida/contratos": "*",
+    "@shopify/ui-extensions": "~2026.7.4",
+    "preact": "^10.24.3"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}

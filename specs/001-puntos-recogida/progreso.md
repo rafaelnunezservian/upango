@@ -5,8 +5,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 5 — US-3 Functions (T078–T091, salvo T090 pendiente de plataforma).
-- **Siguiente sesión**: Phase 6 — User Story 4 (T092–T095).
+- **Última fase completada**: Phase 6 — US-4 (T092–T095).
+- **Siguiente sesión**: Phase 7 — User Story 5 (T096–T109).
 
 ## Plan de sesiones
 
@@ -18,8 +18,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 4 | Phase 4 — US-2 cliente de carrito | T058–T072 | ✅ |
 | 5 | Phase 4 — US-2 embed + Phase 9 — US-7 | T073–T077, T124–T126 | ✅ |
 | 6 | Phase 5 — US-3 Functions | T078–T091 | ✅ (T090 pendiente de plataforma) |
-| 7 | Phase 6 — US-4 | T092–T095 | ⏳ (siguiente) |
-| 8 | Phase 7 — US-5 | T096–T109 | ⏳ |
+| 7 | Phase 6 — US-4 | T092–T095 | ✅ |
+| 8 | Phase 7 — US-5 | T096–T109 | ⏳ (siguiente) |
 | 9 | Phase 8 — US-6 | T110–T122 | ⏳ |
 | 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ⏳ |
 | 11 | Cierre: `/speckit-analyze` + `/speckit-converge` | — | ⏳ |
@@ -53,6 +53,11 @@ que necesita plataforma queda en la lista de abajo.
   fixture de peor caso, NFR-06): no se pudo completar en la sesión cloud. Ver sesión 6 para el diagnóstico
   exacto (`shopify app function schema` devuelve 403 sin una app vinculada a Partners) y qué falta para
   correrlo: T001 (Partners) y luego `npm run typegen`/`npm run build` en cada extensión.
+- Checkpoint de la extensión `punto-pedido` (T092–T095, ver sesión 7): `shopify app dev`/`deploy` la registra
+  como bloque de app disponible en Configuración → Checkout → Personalizar → página de estado del pedido;
+  falta confirmar en una tienda real que el comerciante puede agregarla y que el bloque "Punto de recogida"
+  aparece con los 7 atributos reales de un pedido resolado (en la sesión cloud solo se pudo simular
+  `shopify.attributes`/`shopify.i18n` con dobles de test).
 
 ## Decisiones y notas por sesión
 
@@ -262,3 +267,55 @@ que necesita plataforma queda en la lista de abajo.
   workspace (`--workspace=ocultar-envios`/`renombrar-recogida`) también en verde. No se pudo completar T090
   (medición real de instrucciones) ni generar el `schema.graphql`/`generated/api.ts` reales — pendiente de
   plataforma, agregado arriba.
+
+### Sesión 7 — Phase 6 (US-4)
+
+- **Extensión escrita a mano (T092), con más certeza que las anteriores**: `shopify app generate extension
+  --template customer_account_ui_extension --flavor typescript-preact --name punto-pedido` necesita una app
+  vinculada a Partners (T001), igual que en sesiones anteriores. A diferencia de esas, esta vez el formato de
+  `shopify.extension.toml` y de `src/PuntoPedido.tsx` se verificó contra el **código fuente real** del paquete
+  publicado `@shopify/ui-extensions@2026.7.4` (bajado con `npm pack` — `shopify.dev` y la API de búsqueda de
+  código de GitHub no son alcanzables desde la sesión, pero `github.com`/`registry.npmjs.org` sí lo son) y
+  contra las cadenas literales del `@shopify/cli@3.93.2` ya instalado en el repo (confirma `type =
+  "ui_extension"` y las claves `target`/`module` de `[[extensions.targeting]]`). El propio `README.md` del
+  paquete trae el ejemplo canónico Preact (`import '@shopify/ui-extensions/preact'; import {render} from
+  'preact'; export default function extension() { render(<Extension/>, document.body); }`), que es la base de
+  `PuntoPedido.tsx`.
+- **`shopify.attributes` es una lista `{key, value}[]`, no un mapa**: la `OrderStatusApi` real
+  (`api/order-status/order-status.ts` del paquete) expone `attributes: SubscribableSignalLike<Attribute[] |
+  undefined>`, distinto del `AtributosCarrito` (`Record<string, string>`) que espera `leerSeleccionDeAtributos`
+  (T018, pensado para la Ajax Cart API del embed). `PuntoPedido.tsx` agrega `comoMapaDeAtributos()` para
+  convertir la lista a mapa antes de reusar la función de `@puntos-recogida/contratos` sin duplicar su lógica.
+- **No hay `declare global { const shopify: Api }` posible para `customer-account`**: al tipar el global a
+  mano (necesario porque `shopify app dev`/`typegen` lo generarían solos con una app vinculada, T001) apareció
+  un choque real del paquete: el tipo `Api` del target (`@shopify/ui-extensions/customer-account.order-
+  status.block.render`) importa `extension-targets.d.ts` → `StandardComponents.d.ts` → `../../checkout`, que
+  sí declara de forma ambiental `declare global { const shopify: ShopifyGlobal }` (con solo `.extend()`/
+  `.reload()`, del modelo viejo de targets dinámicos). Con `skipLibCheck` esa colisión no se reporta como
+  redeclaración, pero el checker resuelve `shopify` al `ShopifyGlobal` de `checkout`, no al `Api` propio, y
+  `shopify.attributes`/`shopify.i18n` dejan de tipar. Se evitó por completo declarando un global propio: en su
+  lugar, `obtenerShopify()` castea `globalThis.shopify` a `Api` en cada llamada — el mismo patrón que usa el
+  propio paquete en su hook `useApi()` (`preact/api.ts`: `(globalThis as any)?.shopify as
+  ApiForRenderExtension<Target>`). Leerlo en cada render (no una vez a nivel de módulo) también es lo que
+  permite a los tests reemplazar `globalThis.shopify` entre casos.
+- **Coordenadas válidas del enlace a Google Maps**: `enlaceMapa()` reusa `RANGOS_COORDENADAS` de
+  `@puntos-recogida/contratos` (las mismas del CT-01/dominio) en vez de inventar un rango propio, y primero
+  filtra con `tieneValor()` — `Number("")` da `0`, una coordenada técnicamente "válida" que hubiera armado un
+  enlace a `(0,0)` para un pedido sin `punto_lat`/`punto_lng`.
+- `locales/es.default.json` (T094) usa `shopify.i18n.translate()` (la API real de i18n de customer account,
+  no el `interpolar()` casero del embed) con placeholders de una sola llave (`{punto_id}`), igual que el
+  ejemplo `translate("banner.title")` del propio paquete.
+- Tests (T095) con Preact + jsdom, sin librerías nuevas: `render()` de `preact` sobre un `<div>` descartable
+  por test y aserciones por `querySelector`/`textContent` sobre las etiquetas `s-*` reales (confirmadas contra
+  los `.d.ts` de componentes del paquete: `s-section`, `s-text`, `s-paragraph`, `s-link`). El `translate` falso
+  del test devuelve la clave (más las opciones serializadas) en vez de texto en español, para no acoplar los
+  tests al contenido de `locales/es.default.json`.
+- Nuevas dependencias: `@shopify/ui-extensions` (`~2026.7.4`), `preact` (`^10.24.3`) y `@preact/signals`
+  (`^2.3.0`, peer dependency real del paquete — sin ella, `import "@shopify/ui-extensions/preact"` revienta en
+  tiempo de ejecución con "Cannot find package '@preact/signals'"). `tsconfig.json` fija `jsx: "react-jsx"` +
+  `jsxImportSource: "preact"` (a diferencia del `tsconfig.json` raíz, que es para React); `vitest.config.ts`
+  fija lo mismo en `esbuild` para no depender de que Vite detecte el `tsconfig.json` del paquete.
+- Verificado: `npm test` (175 tests OK, 6 omitidos — suma los 6 de `PuntoPedido.test.tsx`), `npm run
+  typecheck` y `npm run lint` sin errores; `npm run typecheck`/`test --workspace=punto-pedido` también en
+  verde. No se pudo previsualizar el bloque en una página de estado de pedido real (sin Partners/dev store en
+  la sesión cloud) — queda para la fase de testing, agregado arriba.
