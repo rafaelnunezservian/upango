@@ -1,11 +1,14 @@
 import type { SessionStorage } from "@shopify/shopify-app-session-storage";
+import type { AdminGraphqlClient } from "@shopify/shopify-app-react-router/server";
 import type { Configuracion } from "../config/config.server.js";
 import { cargarConfiguracionOSalir } from "../config/config.server.js";
 import type { Registro } from "../application/ports/registro.js";
 import type { Reloj } from "../application/ports/reloj.js";
+import type { EscritorPuntos } from "../application/ports/escritorPuntos.js";
 import { crearSessionStorage } from "../infrastructure/sesiones/fabricaSessionStorage.server.js";
 import { RegistroJson } from "../infrastructure/observabilidad/registroJson.server.js";
 import { RelojSistema } from "../infrastructure/observabilidad/relojSistema.server.js";
+import { EscritorPuntosShopify } from "../infrastructure/shopify/escritorPuntosShopify.server.js";
 
 /**
  * Composition root del backend (constitución I, DIP): el único lugar que
@@ -18,6 +21,8 @@ export interface Contenedor {
   readonly sessionStorage: SessionStorage;
   readonly registro: Registro;
   readonly reloj: Reloj;
+  /** Fábrica por petición (T042): solo la usa la herramienta de semilla (FR-005). */
+  readonly crearEscritorPuntos: (admin: AdminGraphqlClient) => EscritorPuntos;
 }
 
 async function construirContenedor(): Promise<Contenedor> {
@@ -25,8 +30,10 @@ async function construirContenedor(): Promise<Contenedor> {
   const registro: Registro = new RegistroJson(config.logLevel);
   const reloj: Reloj = new RelojSistema();
   const sessionStorage = await crearSessionStorage(config);
+  const crearEscritorPuntos = (admin: AdminGraphqlClient): EscritorPuntos =>
+    new EscritorPuntosShopify(admin);
 
-  return Object.freeze({ config, sessionStorage, registro, reloj });
+  return Object.freeze({ config, sessionStorage, registro, reloj, crearEscritorPuntos });
 }
 
 export const contenedor: Contenedor = await construirContenedor();
