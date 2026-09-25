@@ -1,0 +1,22 @@
+# Customer account UI extension "punto-pedido" (CT-07, T092). Escrita a mano
+# porque la sesión cloud no tiene Partners/dev store para `shopify app
+# generate extension --template customer_account_ui_extension --flavor
+# typescript-preact --name punto-pedido`; misma situación que las demás
+# extensiones de este repo (ver progreso.md, sesiones 5 y 6). A diferencia de
+# esas, el formato se verificó contra el código fuente real del paquete
+# publicado `@shopify/ui-extensions@2026.7.4` (bajado con `npm pack` porque
+# `shopify.dev` no es alcanzable desde la sesión) y contra las cadenas
+# literales del propio `@shopify/cli@3.93.2` ya instalado en este repo
+# (ambos confirman `type = "ui_extension"`, el target
+# `customer-account.order-status.block.render` y las claves `target`/
+# `module` de `[[extensions.targeting]]` del CT-07).
+api_version = "2026-07"
+
+[[extensions]]
+name = "Puntos de recogida · punto de pedido"
+handle = "punto-pedido"
+type = "ui_extension"
+
+  [[extensions.targeting]]
+  target = "customer-account.order-status.block.render"
+  module = "./src/PuntoPedido.tsx"
