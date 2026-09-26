@@ -14,7 +14,10 @@ function esTopicPrivacidad(topic: string): topic is TopicPrivacidad {
   return TOPICS_PRIVACIDAD.includes(topic);
 }
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = ({ request }: ActionFunctionArgs) =>
+  contenedor.conContextoPeticion(request, () => procesarWebhook(request));
+
+async function procesarWebhook(request: Request): Promise<Response> {
   const { shop, topic } = await authenticate.webhook(request);
 
   if (esTopicPrivacidad(topic)) {
@@ -32,4 +35,4 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   return new Response();
-};
+}

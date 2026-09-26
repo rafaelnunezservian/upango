@@ -6,7 +6,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "build:watch": "node build.mjs --watch"
   },
   "dependencies": {
     "@puntos-recogida/contratos": "*"

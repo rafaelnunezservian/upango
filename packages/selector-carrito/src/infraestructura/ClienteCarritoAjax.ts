@@ -11,8 +11,13 @@ declare global {
   }
 }
 
-function raizDeRutas(): string {
-  return window.Shopify?.routes?.root ?? "/";
+/**
+ * Raíz de rutas de la tienda con barra final (`/` o `/en/`, EC-17):
+ * `Shopify.routes.root`, o `respaldo` (`routes.root_url` de Liquid, sin barra
+ * final) si el tema no expone el global.
+ */
+export function raizDeRutas(respaldo = "/"): string {
+  return (window.Shopify?.routes?.root ?? respaldo).replace(/\/?$/, "/");
 }
 
 /** Adaptador de la Ajax Cart API (CT-02): `GET cart.js` y `POST cart/update.js`. */

@@ -11,6 +11,8 @@ import type {
 } from "../ports/gatewayPersonalizaciones.js";
 import type { Registro } from "../ports/registro.js";
 
+const TIENDA = "tienda.myshopify.com";
+
 function crearRegistroFalso(): Registro {
   return { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() };
 }
@@ -40,6 +42,7 @@ describe("activarPersonalizacionesEntrega", () => {
 
     const resultado = await activarPersonalizacionesEntrega({
       gateway,
+      tienda: TIENDA,
       registro: crearRegistroFalso(),
     });
 
@@ -61,6 +64,7 @@ describe("activarPersonalizacionesEntrega", () => {
 
     const resultado = await activarPersonalizacionesEntrega({
       gateway,
+      tienda: TIENDA,
       registro: crearRegistroFalso(),
     });
 
@@ -79,6 +83,7 @@ describe("activarPersonalizacionesEntrega", () => {
 
     const resultado = await activarPersonalizacionesEntrega({
       gateway,
+      tienda: TIENDA,
       registro: crearRegistroFalso(),
     });
 
@@ -98,8 +103,8 @@ describe("activarPersonalizacionesEntrega", () => {
       activar: vi.fn(async () => ({ userErrors: [] })),
     };
 
-    const primera = await activarPersonalizacionesEntrega({ gateway, registro: crearRegistroFalso() });
-    const segunda = await activarPersonalizacionesEntrega({ gateway, registro: crearRegistroFalso() });
+    const primera = await activarPersonalizacionesEntrega({ tienda: TIENDA, gateway, registro: crearRegistroFalso() });
+    const segunda = await activarPersonalizacionesEntrega({ tienda: TIENDA, gateway, registro: crearRegistroFalso() });
 
     expect(primera).toEqual({ creadas: 2, activadas: 0, errores: [] });
     expect(segunda).toEqual({ creadas: 0, activadas: 0, errores: [] });
@@ -121,6 +126,7 @@ describe("activarPersonalizacionesEntrega", () => {
 
     const resultado = await activarPersonalizacionesEntrega({
       gateway,
+      tienda: TIENDA,
       registro: crearRegistroFalso(),
     });
 
@@ -143,6 +149,7 @@ describe("activarPersonalizacionesEntrega", () => {
 
     const resultado = await activarPersonalizacionesEntrega({
       gateway,
+      tienda: TIENDA,
       registro: crearRegistroFalso(),
     });
 

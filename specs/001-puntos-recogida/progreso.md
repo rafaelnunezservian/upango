@@ -5,10 +5,10 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 10 — Docs y calidad (T127–T130, T134, T135; T131–T133 y T136 fuera de
-  alcance de la nube, ver sesión 10).
-- **Siguiente sesión**: 12 — `/speckit-implement` de la Phase 12: Convergence (T143–T154; T142 queda
-  pendiente de plataforma como T090).
+- **Última fase completada**: Phase 12 — Convergence (T143–T154; T142 pendiente de plataforma, ver sesión
+  12).
+- **Siguiente sesión**: 13 — volver a correr `/speckit-converge` para evaluar el código contra `spec.md`
+  después de la Phase 12.
 
 ## Plan de sesiones
 
@@ -25,7 +25,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 9 | Phase 8 — US-6 | T110–T122 | ✅ (T123 pendiente de plataforma) |
 | 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ✅ (T131–T133, T136 fuera de alcance en la nube) |
 | 11 | Cierre: `/speckit-converge` (el `/speckit-analyze` no se ejecutó) | — | ✅ (13 tareas nuevas, T142–T154) |
-| 12 | Phase 12 — Convergence | T143–T154 | ⏳ (siguiente; T142 pendiente de plataforma) |
+| 12 | Phase 12 — Convergence | T143–T154 | ✅ (T142 pendiente de plataforma) |
+| 13 | `/speckit-converge` otra vez | — | ⏳ (siguiente) |
 
 ## Cómo trabaja cada sesión
 
@@ -57,6 +58,19 @@ que necesita plataforma queda en la lista de abajo.
   exacto (`shopify app function schema` devuelve 403 sin una app vinculada a Partners) y qué falta para
   correrlo: T001 (Partners) y luego `npm run typegen`/`npm run build` en cada extensión. El README (§8) deja
   el conteo marcado como pendiente de medir en vez de inventarlo (sesión 10).
+- T142 (fixtures de `ocultar-envios`/`renombrar-recogida` sobre el wasm compilado desde `npm test`, con el
+  presupuesto del 50 % de instrucciones): mismo bloqueo que T090 — sin T001 (Partners) no hay
+  `shopify app function schema`/`typegen`/`build`, así que no existe `dist/function.wasm` contra el que
+  correr `shopify app function run`. Mientras tanto, T143 (sesión 12) ya valida los 11 fixtures sobre el
+  `run` de TypeScript en `npm test`.
+- Rutas públicas y `npm run dev` (sesión 12): falta probar en una tienda real `/auth/login` (formulario con
+  Polaris web components cargados a mano, ver sesión 12), la landing `/` y que `npm run dev`
+  (`scripts/dev.mjs`) levante `shopify app dev` con el watch del embed en PowerShell y bash (en la nube solo
+  se probó el watch de esbuild, no `shopify app dev`).
+- `Dockerfile` (sesión 12): el nuevo `CMD` en forma exec solo se validó por lectura. Además, al revisarlo
+  apareció un riesgo previo, sin verificar por falta de Docker: la etapa `build` corre `npm run build` (que
+  incluye `build:embed`) pero no copia `packages/selector-carrito` ni los `package.json` de los demás
+  workspaces, así que `npm ci`/`npm run build` podrían fallar en un `docker build` real.
 - T131 (checklist E2E manual del Anexo B, 25 casos), T132 (auditoría de accesibilidad WCAG 2.1 AA) y T133
   (Lighthouse con y sin la app): necesitan una development store real con Dawn/Horizon y un navegador,
   fuera del alcance de la sesión cloud (sesión 10). T136 (distribución en Partners Dashboard, FASE-10) es
@@ -565,3 +579,50 @@ que necesita plataforma queda en la lista de abajo.
   `SIGTERM` con `npm` como PID 1 (T153) y `process.env` directo en `app.tsx` (T154).
 - Aviso para T150: el bundle está en 19 717 bytes (margen de 763 bytes hasta el límite de 20 KB).
 - Verificado: `npm test` (240 OK, 6 omitidos) y `npm run build:embed` en verde; no hubo cambios de código.
+
+### Sesión 12 — Phase 12 (Convergence)
+
+- **T143**: `extensions/*/src/fixtures.test.ts` recorre `tests/fixtures/*.json` y compara `run(input)` con
+  `output` (7 fixtures de `ocultar-envios` + 4 de `renombrar-recogida`, todos OK sin cambios de código).
+- **T144**: `coverage` es opción global en Vitest 4 (`defineProject` no la admite), así que los umbrales
+  viven en el `vitest.config.ts` raíz, uno por glob de cada scope del §24.1, con `coverage.include` limitado
+  a esos scopes (un archivo sin tests cuenta como 0 %). Se comprobó que el umbral falla subiéndolo a 99 %.
+  Ningún scope quedaba debajo del 90 %; `deploy/src/aplicacion` estaba justo en 90,00 %, así que se
+  agregaron tests de `--paso verificar/secretos/imagen` (ahora 100 %).
+- **T145**: `auth.login` del template oficial (`Shopify/shopify-app-template-react-router`, rama `main`,
+  que usa `@shopify/shopify-app-react-router` 1.x) con textos en `app/i18n/es.ts`. Adaptación necesaria: la
+  v3.0.0 instalada aquí quitó `<AppProvider embedded={false}>` (en v1 solo cargaba el script de Polaris sin
+  App Bridge), así que la ruta carga ese mismo script (`polaris.js`) a mano. En v3 `authenticate.admin` ya no
+  redirige a `/auth/login` (renderiza App Bridge), pero sin esta ruta `/auth/login` caía en `auth.$` y
+  respondía 500. `_index` ahora reutiliza `auth.login/error.server.tsx` (se borró su copia en inglés).
+- **Hallazgo no numerado**: `flatRoutes()` registraba cada `*.test.ts(x)` de `app/routes` como ruta hija
+  (`/healthz/test`, `/proxy/puntos/test`, …) y los empaquetaba en el build del servidor. Arreglado con
+  `ignoredRouteFiles: ["**/*.test.{ts,tsx}"]` en `app/routes.ts` (verificado con `react-router routes` y
+  `npm run build`). También `<html lang="es">` en `app/root.tsx`.
+- **T146/T147/T154**: sin `app.additional.tsx`; navegación, landing (con enlace a `/privacidad`) e inicio
+  de sesión en español desde `es.ts`; `app.tsx` lee `contenedor.config.shopifyApiKey`.
+- **T148**: eventos del §22 (`proxy.puntos.respuesta`, `puntos.carga`, `puntos.invalido` con `gid`,
+  `puntos.duplicado` con `gids`, `puntos.carga.error` con `reintentos`, `personalizaciones.activacion` con
+  `tienda`, `webhook.recibido` en `app/uninstalled` y `app/scopes_update`). Para las métricas, el puerto
+  `FuentePuntos.obtenerTodos()` ahora devuelve `{ puntos, metricas: { paginas, costo, reintentos } }` y, si
+  falla, `FuentePuntosError` con los reintentos y la causa. `requestId` sale de `traceparent`
+  (trace-id W3C) o `x-cloud-trace-context` mediante un `AsyncLocalStorage`
+  (`infrastructure/observabilidad/contextoPeticion.server.ts`) que `RegistroJson` consulta; las rutas lo
+  activan con `contenedor.conContextoPeticion`. El 500 del proxy loguea `stack`. README §18 actualizado.
+- **T149**: `ListarPuntosRecogida.ejecutar` devuelve `{ respuesta, estadoCache }`; la copia vencida sale con
+  `stale: false` en el camino normal (SWR) y `stale: true` solo mientras el último refresco de esa tienda
+  falló (se limpia con el siguiente que funcione).
+- **T150/T152**: sin botones reconocibles, el widget se inserta justo antes de `.pr-embed-raiz` (y se retira
+  cuando aparece un botón); el enlace compacto usa `raizDeRutas()` (`Shopify.routes.root`, o `rutaRaiz` de
+  `#pr-config` con la barra final agregada). **Bundle: 19 908 bytes** (antes 19 717; quedan 572 bytes).
+- **T151**: `build.mjs --watch` (contexto de esbuild con el control de peso en cada rebuild, sin cortar el
+  watch) y `npm run dev` → `scripts/dev.mjs`, que lanza el watch y `shopify app dev --config dev` sin
+  dependencias nuevas y detiene ambos cuando termina uno.
+- **T153**: `CMD ["node_modules/.bin/react-router-serve", "./build/server/index.js"]` (react-router-serve ya
+  atiende SIGTERM/SIGINT con `server.close`); documentado en README §14.
+- **Pendiente sin tarea**: `tsc --noEmit` dentro de `packages/selector-carrito` da 2 errores previos a esta
+  sesión en `src/main.ts` (`exactOptionalPropertyTypes` con `interruptorDemo` y el tipo de
+  `atributosModoDemo`); el `npm run typecheck` raíz no cubre ese workspace, aunque el §21.4 dice "en todos
+  los workspaces". Candidato para el próximo `/speckit-converge`.
+- Verificado: `npm test` (278 OK, 6 omitidos), `npm run typecheck`, `npm run lint`, `npm run test:coverage`
+  (umbrales cumplidos), `npm run build:embed` (19 908 bytes) y `npm run build` en verde.

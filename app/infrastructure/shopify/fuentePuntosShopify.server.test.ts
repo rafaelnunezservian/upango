@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { GraphqlQueryError } from "@shopify/shopify-api";
 import { FuentePuntosShopify } from "./fuentePuntosShopify.server.js";
 import type { Registro } from "../../application/ports/registro.js";
+import { FuentePuntosError } from "../../application/ports/fuentePuntos.js";
 
 function crearRegistroFalso(): Registro {
   return { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() };
@@ -14,10 +15,16 @@ function nodo(id: string, valores: Record<string, string>) {
   };
 }
 
-function respuestaGraphql(nodos: unknown[], hasNextPage: boolean, endCursor: string | null) {
+function respuestaGraphql(
+  nodos: unknown[],
+  hasNextPage: boolean,
+  endCursor: string | null,
+  costo?: { requestedQueryCost: number; actualQueryCost?: number },
+) {
   return {
     json: async () => ({
       data: { metaobjects: { nodes: nodos, pageInfo: { hasNextPage, endCursor } } },
+      ...(costo ? { extensions: { cost: costo } } : {}),
     }),
   };
 }
@@ -59,7 +66,7 @@ describe("FuentePuntosShopify", () => {
       );
 
     const fuente = new FuentePuntosShopify(graphql as never, crearRegistroFalso(), 250);
-    const puntos = await fuente.obtenerTodos();
+    const { puntos } = await fuente.obtenerTodos();
 
     expect(puntos).toHaveLength(2);
     expect(puntos[0]!.id).toBe("PR-MAD-001");
@@ -78,7 +85,9 @@ describe("FuentePuntosShopify", () => {
       );
 
     const fuente = new FuentePuntosShopify(graphql as never, crearRegistroFalso());
-    const [punto] = await fuente.obtenerTodos();
+    const {
+      puntos: [punto],
+    } = await fuente.obtenerTodos();
 
     expect(punto!.gid).toBe("gid://shopify/Metaobject/1");
     expect(punto!.lat).toBeCloseTo(40.416775);
@@ -96,7 +105,7 @@ describe("FuentePuntosShopify", () => {
     const esperar = vi.fn(async () => {});
 
     const fuente = new FuentePuntosShopify(graphql as never, crearRegistroFalso(), 250, esperar);
-    const puntos = await fuente.obtenerTodos();
+    const { puntos } = await fuente.obtenerTodos();
 
     expect(puntos).toHaveLength(1);
     expect(esperar).toHaveBeenNthCalledWith(1, 500);
@@ -109,7 +118,11 @@ describe("FuentePuntosShopify", () => {
 
     const fuente = new FuentePuntosShopify(graphql as never, crearRegistroFalso(), 250, esperar);
 
-    await expect(fuente.obtenerTodos()).rejects.toThrow(GraphqlQueryError);
+    const error = await fuente.obtenerTodos().catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(FuentePuntosError);
+    expect((error as FuentePuntosError).reintentos).toBe(4);
+    expect((error as FuentePuntosError).cause).toBeInstanceOf(GraphqlQueryError);
     expect(graphql).toHaveBeenCalledTimes(5);
   });
 
@@ -129,7 +142,7 @@ describe("FuentePuntosShopify", () => {
       );
 
     const fuente = new FuentePuntosShopify(graphql as never, crearRegistroFalso(), 250);
-    const puntos = await fuente.obtenerTodos();
+    const { puntos } = await fuente.obtenerTodos();
 
     expect(puntos).toHaveLength(2);
     expect(graphql.mock.calls[0]![1]).toMatchObject({ variables: { after: null, first: 250 } });
@@ -137,5 +150,27 @@ describe("FuentePuntosShopify", () => {
     expect(graphql.mock.calls[2]![1]).toMatchObject({
       variables: { after: "cursor-1", first: 125 },
     });
+  });
+
+  it("informa páginas, costo real (o pedido) y reintentos de la carga (puntos.carga, §22)", async () => {
+    const graphql = vi
+      .fn()
+      .mockRejectedValueOnce(errorGraphql("THROTTLED"))
+      .mockResolvedValueOnce(
+        respuestaGraphql([nodo("gid://shopify/Metaobject/1", VALORES_PUNTO)], true, "cursor-1", {
+          requestedQueryCost: 50,
+          actualQueryCost: 20,
+        }),
+      )
+      .mockResolvedValueOnce(
+        respuestaGraphql([nodo("gid://shopify/Metaobject/2", VALORES_PUNTO)], false, null, {
+          requestedQueryCost: 7,
+        }),
+      );
+
+    const fuente = new FuentePuntosShopify(graphql as never, crearRegistroFalso(), 250, async () => {});
+    const { metricas } = await fuente.obtenerTodos();
+
+    expect(metricas).toEqual({ paginas: 2, costo: 27, reintentos: 1 });
   });
 });

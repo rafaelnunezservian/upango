@@ -11,6 +11,10 @@ import type { GatewayPersonalizaciones } from "../application/ports/gatewayPerso
 import type { ConsultaConfiguracionTienda } from "../application/ports/consultaConfiguracionTienda.js";
 import { crearSessionStorage } from "../infrastructure/sesiones/fabricaSessionStorage.server.js";
 import { RegistroJson } from "../infrastructure/observabilidad/registroJson.server.js";
+import {
+  conContextoPeticion,
+  datosContextoPeticion,
+} from "../infrastructure/observabilidad/contextoPeticion.server.js";
 import { RelojSistema } from "../infrastructure/observabilidad/relojSistema.server.js";
 import { EscritorPuntosShopify } from "../infrastructure/shopify/escritorPuntosShopify.server.js";
 import { FuentePuntosShopify } from "../infrastructure/shopify/fuentePuntosShopify.server.js";
@@ -40,11 +44,13 @@ export interface Contenedor {
   readonly crearGatewayPersonalizaciones: (admin: AdminGraphqlClient) => GatewayPersonalizaciones;
   /** Fábrica por petición (T100): página de admin, US-5. */
   readonly crearConsultaConfiguracionTienda: (admin: AdminGraphqlClient) => ConsultaConfiguracionTienda;
+  /** Corre un controlador con el `requestId` de la petición disponible para el registro (§22). */
+  readonly conContextoPeticion: <T>(request: Request, fn: () => T) => T;
 }
 
 async function construirContenedor(): Promise<Contenedor> {
   const config = cargarConfiguracionOSalir();
-  const registro: Registro = new RegistroJson(config.logLevel);
+  const registro: Registro = new RegistroJson(config.logLevel, datosContextoPeticion);
   const reloj: Reloj = new RelojSistema();
   const sessionStorage = await crearSessionStorage(config);
   const cachePuntos: CachePuntos = new CachePuntosMemoria(
@@ -73,6 +79,7 @@ async function construirContenedor(): Promise<Contenedor> {
     crearFuentePuntos,
     crearGatewayPersonalizaciones,
     crearConsultaConfiguracionTienda,
+    conContextoPeticion,
   });
 }
 

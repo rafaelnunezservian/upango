@@ -23,7 +23,11 @@ const PRIORIDAD: Record<NivelLog, number> = {
  * esos valores en `datos` (constitución VI).
  */
 export class RegistroJson implements Registro {
-  constructor(private readonly nivelMinimo: NivelLog = "info") {}
+  constructor(
+    private readonly nivelMinimo: NivelLog = "info",
+    /** Datos de correlación de la petición en curso (`requestId`, §22). */
+    private readonly contexto: () => DatosEvento = () => ({}),
+  ) {}
 
   debug(evento: string, datos?: DatosEvento): void {
     this.escribir("debug", evento, datos);
@@ -49,6 +53,7 @@ export class RegistroJson implements Registro {
       severity: SEVERIDAD[nivel],
       message: evento,
       evento,
+      ...this.contexto(),
       ...datos,
     };
     // eslint-disable-next-line no-console

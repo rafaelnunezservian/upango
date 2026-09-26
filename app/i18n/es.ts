@@ -1,7 +1,47 @@
 import { TITULO_TARIFA_RECOGIDA } from "@puntos-recogida/contratos";
 
-/** Textos en español de la página de admin (FR-055 a FR-061, §16). */
+/**
+ * Textos en español de la app (FR-035, NFR-16): página de admin (FR-055 a
+ * FR-061, §16), navegación, inicio de sesión y landing pública.
+ */
 export const es = {
+  navegacion: {
+    inicio: "Inicio",
+  },
+  inicioSesion: {
+    titulo: "Iniciar sesión",
+    campoTienda: "Dominio de la tienda",
+    ayudaTienda: "ejemplo.myshopify.com",
+    enviar: "Iniciar sesión",
+    errores: {
+      tiendaFaltante: "Escribe el dominio de tu tienda para iniciar sesión.",
+      tiendaInvalida: "Escribe un dominio de tienda válido para iniciar sesión.",
+    },
+  },
+  landing: {
+    titulo: "Puntos de recogida para tu tienda Shopify",
+    lema:
+      "Tus compradores eligen un punto de recogida en el carrito y el checkout ofrece solo la " +
+      "recogida en ese punto, sin necesidad de Shopify Plus.",
+    campoTienda: "Dominio de la tienda",
+    ayudaTienda: "p. ej.: mi-tienda.myshopify.com",
+    enviar: "Iniciar sesión",
+    caracteristicas: [
+      {
+        titulo: "Selector en el carrito",
+        texto: "Buscador accesible de puntos de recogida que bloquea el checkout hasta que se elige uno.",
+      },
+      {
+        titulo: "Checkout coherente",
+        texto: "Dos Functions de personalización de entrega ocultan las demás opciones y renombran la recogida con el punto elegido.",
+      },
+      {
+        titulo: "Punto en el pedido",
+        texto: "El pedido guarda el punto elegido y el cliente lo ve en su página de estado del pedido.",
+      },
+    ],
+    privacidad: "Política de privacidad",
+  },
   pagina: {
     titulo: "Puntos de recogida",
   },

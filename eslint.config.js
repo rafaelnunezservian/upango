@@ -108,6 +108,7 @@ export default [
           "**/*.server.{js,ts}",
           "packages/**/*.{js,ts,mjs}",
           "deploy/**/*.{js,ts}",
+          "scripts/**/*.mjs",
           "extensions/**/*.{js,ts}",
         ],
         env: { node: true },
