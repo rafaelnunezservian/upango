@@ -3,7 +3,6 @@ import {
   VALOR_TIPO_RESOLADO,
   atributosVaciosSeleccion,
 } from "@puntos-recogida/contratos";
-import type { AtributosCarrito } from "@puntos-recogida/contratos";
 
 /**
  * Atributos a escribir en el carrito al activar o desactivar el interruptor
@@ -11,7 +10,7 @@ import type { AtributosCarrito } from "@puntos-recogida/contratos";
  * desactivar también limpia los 7 `punto_*`, igual que un carrito que deja
  * de ser resolado (FR-029).
  */
-export function atributosModoDemo(activo: boolean): AtributosCarrito {
+export function atributosModoDemo(activo: boolean): Record<string, string> {
   if (activo) {
     return { [CLAVE_TIPO_CARRITO]: VALOR_TIPO_RESOLADO };
   }

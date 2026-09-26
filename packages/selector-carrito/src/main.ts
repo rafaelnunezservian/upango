@@ -69,13 +69,17 @@ function iniciar(config: ConfigInicial): void {
       selectorContextosCompactos: config.ajustes.selectorContextosCompactos,
       textoEnlaceCompacto: config.textos.enlaceCompacto,
       rutaCarrito: `${raizDeRutas(config.rutaRaiz)}cart`,
-      interruptorDemo: config.ajustes.modoDemo
+      // Sin modo demo se omite la propiedad (exactOptionalPropertyTypes).
+      ...(config.ajustes.modoDemo
         ? {
-            etiqueta: config.textos.demoInterruptor,
-            aviso: config.textos.demoAviso,
-            onCambiar: (activo) => void clienteCarrito.actualizarAtributos(atributosModoDemo(activo)),
+            interruptorDemo: {
+              etiqueta: config.textos.demoInterruptor,
+              aviso: config.textos.demoAviso,
+              onCambiar: (activo: boolean) =>
+                void clienteCarrito.actualizarAtributos(atributosModoDemo(activo)),
+            },
           }
-        : undefined,
+        : {}),
     },
     vista,
     () => guardia.aplicar(),

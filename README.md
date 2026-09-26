@@ -456,13 +456,16 @@ si la consulta falla, la página muestra un banner con "Reintentar" en vez de ro
 ```bash
 npm test              # todas las suites (Vitest workspace + fixtures de las Functions)
 npm run test:coverage # igual, con reporte de cobertura (umbral: 90% en dominio y aplicación)
-npm run typecheck     # react-router typegen + tsc --noEmit en todos los workspaces
+npm run typecheck     # react-router typegen + tsc --noEmit en la raíz y en cada workspace
 npm run lint          # ESLint (incluida la regla de imports del FR-083)
 ```
 
 Cada workspace tiene su propio `vitest.config.ts` (nombre, entorno — `node` o `jsdom` —, patrón de
 `include`); `vitest.config.ts` en la raíz los agrupa con `test.projects` para que `npm test` corra todo de
-una vez y `npm run test:coverage` agregue la cobertura de todos.
+una vez y `npm run test:coverage` agregue la cobertura de todos. Del mismo modo, `npm run typecheck` corre
+`tsc --noEmit` en la raíz (la app) y después `npm run typecheck --workspaces --if-present`, es decir, el
+script `typecheck` de cada workspace (`packages/*`, `extensions/*` y `deploy`), cada uno con su propio
+`tsconfig.json`; falla si cualquiera de ellos tiene un error de tipos.
 
 **Qué cubre cada capa**:
 
@@ -485,13 +488,13 @@ tienda de prueba, en Dawn y Horizon, en `/cart` y en el drawer, en escritorio y 
 correr en la sesión cloud (sin development store disponible); queda como tarea de la fase de testing junto
 con la auditoría de accesibilidad WCAG 2.1 AA y la medición de Lighthouse (NFR-04).
 
-**Estado al cerrar esta sesión**: `npm test` (240 tests, 6 omitidos — los contract tests de Firestore que
-necesitan el emulador), `npm run typecheck` y `npm run lint` sin errores. Cobertura de línea en los
-directorios de dominio/aplicación listados arriba: 100 % en `app/domain`, `packages/contratos`,
-`packages/selector-carrito/src/dominio`, `extensions/ocultar-envios/src/dominio`,
-`extensions/renombrar-recogida/src/dominio` y `deploy/src/dominio`; 98.3 % en `app/application`; 95.2 % en
-`packages/selector-carrito/src/aplicacion`; 90.0 % en `deploy/src/aplicacion` — todos por encima del umbral
-del 90 % (T135).
+**Estado actual** (sesión 14): `npm test` (278 tests, 6 omitidos — los contract tests de Firestore que
+necesitan el emulador), `npm run typecheck` (raíz y los 6 workspaces) y `npm run lint` sin errores.
+Cobertura de línea en los directorios de dominio/aplicación listados arriba: 100 % en `app/domain`,
+`packages/contratos`, `packages/selector-carrito/src/dominio`, `extensions/ocultar-envios/src/dominio`,
+`extensions/renombrar-recogida/src/dominio`, `deploy/src/dominio` y `deploy/src/aplicacion`; 98.6 % en
+`app/application`; 95.2 % en `packages/selector-carrito/src/aplicacion` — todos por encima del umbral del
+90 %.
 
 ## 13. Despliegue del backend: arquitectura abstraída
 
@@ -563,6 +566,25 @@ npm run deploy:shopify
 de desplegar con el formato determinista de Cloud Run
 (`https://<servicio>-<número-de-proyecto>.<región>.run.app`) y, después de desplegar, la compara contra la
 URL real del servicio.
+
+**Qué construye el `Dockerfile`** (el mismo que usa `gcloud builds submit`): dos etapas sobre
+`node:24-alpine`. La etapa `build` instala todas las dependencias y ejecuta `npm run build:backend` (solo
+`react-router build`); no ejecuta `npm run build`, que además arma el bundle del app embed
+(`npm run build:embed`), porque ni `packages/selector-carrito` ni `extensions/` (excluida en
+`.dockerignore`) están en el contexto y el contenedor no los necesita: el embed se sube a Shopify con
+`npm run deploy:shopify`. La etapa final instala solo dependencias de ejecución (`npm ci --omit=dev`) y
+copia el build. Por eso las herramientas de build y desarrollo (`@shopify/cli`, `@react-router/dev`,
+`@react-router/fs-routes`, `vite-tsconfig-paths`, además de `vite`, `typescript`, `esbuild`…) están en
+`devDependencies`: si un paquete nuevo solo se usa en `vite.config.ts`, `app/routes.ts` o en scripts de
+desarrollo, va ahí.
+
+**Tamaño de la imagen** (medido con `docker build` en la sesión 14, objetivo del §20.2: ≤ 250 MB): 82 MB
+comprimida (lo que se sube a Artifact Registry y descarga Cloud Run en cada arranque en frío) y 314 MB
+descomprimida, de los que 172 MB son la imagen base `node:24-alpine` (Node y npm) y 140 MB la app
+(`node_modules` de ejecución, 139 MB). Antes de mover esas herramientas a `devDependencies` eran 119 MB y
+467 MB. El objetivo se cumple medido comprimido; descomprimida la imagen lo supera por el peso de la base:
+el mayor paquete que queda es `typescript` (23 MB), que npm instala como *peer dependency* opcional de
+`@react-router/node` aunque el servidor no lo usa en tiempo de ejecución.
 
 **Ver logs**: en el Logs Explorer de Google Cloud, o con `gcloud run services logs read <servicio>`.
 
@@ -723,6 +745,14 @@ que nunca corre con datos de una tienda real, no del código que se despliega (e
 `devDependencies` en la etapa final, ver [§20.2 del spec](specs/001-puntos-recogida/spec.md)). Revisar de
 nuevo con cada actualización de `@shopify/cli`/`@shopify/shopify_function` (`npm audit`), por si una
 versión futura corta la cadena.
+
+**Dependencias de la imagen**: en el contexto de la imagen (solo el `package.json` de la raíz y el de
+`packages/contratos`), `npm audit --omit=dev` reporta **0 vulnerabilidades** (medido dentro del contenedor
+en la sesión 14). Antes de pasar `@shopify/cli` y las herramientas de build a `devDependencies` la imagen
+arrastraba su árbol completo —incluido un `esbuild` con un aviso de `npm audit`— aunque el servidor nunca
+lo usa. Ejecutado en la raíz del repo, `npm audit --omit=dev` sí muestra la cadena de `lodash` de arriba,
+porque cuenta también las `dependencies` de los workspaces de las Functions
+(`@shopify/shopify_function`), que no se instalan en el contenedor ni corren en el backend.
 
 ## 20. Solución de problemas
 

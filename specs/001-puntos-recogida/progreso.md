@@ -5,9 +5,10 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: `/speckit-converge` de la sesión 13, que agregó la Phase 13 (T155–T157).
-  Phase 12 completa salvo T142 (pendiente de plataforma, ver sesión 12).
-- **Siguiente sesión**: 14 — `/speckit-implement` de la Phase 13 (T155–T157).
+- **Última fase completada**: Phase 13 — Convergence (T155–T157), sesión 14. Phase 12 completa salvo T142
+  (pendiente de plataforma, ver sesión 12).
+- **Siguiente sesión**: sin tareas de código pendientes en la nube. Queda la fase de testing en plataforma
+  (lista de abajo); opcionalmente otro `/speckit-converge`.
 
 ## Plan de sesiones
 
@@ -26,7 +27,7 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 11 | Cierre: `/speckit-converge` (el `/speckit-analyze` no se ejecutó) | — | ✅ (13 tareas nuevas, T142–T154) |
 | 12 | Phase 12 — Convergence | T143–T154 | ✅ (T142 pendiente de plataforma) |
 | 13 | `/speckit-converge` otra vez | — | ✅ (3 tareas nuevas, T155–T157) |
-| 14 | Phase 13 — Convergence | T155–T157 | ⏳ (siguiente) |
+| 14 | Phase 13 — Convergence | T155–T157 | ✅ |
 
 ## Cómo trabaja cada sesión
 
@@ -67,9 +68,9 @@ que necesita plataforma queda en la lista de abajo.
   Polaris web components cargados a mano, ver sesión 12), la landing `/` y que `npm run dev`
   (`scripts/dev.mjs`) levante `shopify app dev` con el watch del embed en PowerShell y bash (en la nube solo
   se probó el watch de esbuild, no `shopify app dev`).
-- `Dockerfile` (sesión 12): el nuevo `CMD` en forma exec solo se validó por lectura. El riesgo de la etapa
-  `build` que se anotó aquí se confirmó en la sesión 13 reproduciendo el contexto sin Docker y ahora es la
-  tarea T155 (ver sesión 13). Queda de plataforma: un `docker build` real y `gcloud builds submit`.
+- `Dockerfile` (sesiones 12–14): en la sesión 14 se compiló con un `docker build` real, arranca y responde
+  `GET /healthz` 200, y `docker stop` lo detiene al instante con código 0 (el `CMD` en forma exec recibe
+  `SIGTERM`). Queda de plataforma: `gcloud builds submit` (Cloud Build) y el arranque en Cloud Run.
 - T131 (checklist E2E manual del Anexo B, 25 casos), T132 (auditoría de accesibilidad WCAG 2.1 AA) y T133
   (Lighthouse con y sin la app): necesitan una development store real con Dawn/Horizon y un navegador,
   fuera del alcance de la sesión cloud (sesión 10). T136 (distribución en Partners Dashboard, FASE-10) es
@@ -85,11 +86,8 @@ que necesita plataforma queda en la lista de abajo.
   checklist E2E del Anexo B).
 - CLI de despliegue (`deploy/`, sesión 9): se probó `--dry-run` de punta a punta contra el CLI real (arma
   todos los comandos `gcloud`, calcula la URL de Cloud Run, códigos de salida 0/1/2/4 verificados a mano),
-  pero nunca contra un proyecto GCP real ni contra un `docker build` real (el contenedor de la sesión cloud
-  no tiene el daemon de Docker corriendo — `docker info` falla con "no such file or directory" en
-  `/var/run/docker.sock` — así que el `Dockerfile` solo se validó por lectura, no compilándolo). Falta, con
-  Docker y un proyecto GCP reales: `docker build .` (confirmar el objetivo de ≤250 MB del NFR de la imagen,
-  §20.2) y `npm run deploy -- --proveedor gcp` (sin `--dry-run`) de punta a punta en un proyecto vacío
+  pero nunca contra un proyecto GCP real. El `docker build` real se hizo en la sesión 14 (ver ahí el tamaño
+  frente al objetivo de ≤250 MB del §20.2). Falta, con un proyecto GCP real: `npm run deploy -- --proveedor gcp` (sin `--dry-run`) de punta a punta en un proyecto vacío
   (Independent Test de la Phase 8).
 - Página de admin (T096–T109, ver sesión 8): `GatewayPersonalizacionesShopify` usa `deliveryCustomizations`,
   `deliveryCustomizationCreate`/`Update` y `ConsultaConfiguracionTiendaShopify` usa
@@ -659,3 +657,42 @@ que necesita plataforma queda en la lista de abajo.
   §25). `npm audit` completo sigue igual que en la sesión 10 (15 altas en `@graphql-codegen/*`, solo
   desarrollo).
 - Verificado: `npm test` (278 OK, 6 omitidos), `npm run typecheck` y `npm run lint` en verde.
+
+### Sesión 14 — Phase 13 (Convergence)
+
+- **Docker en la sesión cloud**: `dockerd` está instalado pero no arranca solo; se levantó a mano
+  (`dockerd &`) y funcionó. Dos obstáculos del entorno, no del proyecto: Docker Hub respondió 429 una vez
+  (se resolvió reintentando `docker pull node:24-alpine`) y `npm ci` dentro del build falla con
+  `SELF_SIGNED_CERT_IN_CHAIN` porque el contenedor no confía en la CA del proxy de la sesión. Para no tocar
+  el `Dockerfile`, se construyó con una copia en el scratchpad que solo agrega, tras cada `FROM`,
+  `COPY --from=ccrca ca-bundle.crt` + `ENV NODE_EXTRA_CA_CERTS=…` (con
+  `--build-context ccrca=/root/.ccr --network host`); todo lo demás es el `Dockerfile` del repo.
+- **T155**: reproducido con `docker build` real el fallo `Cannot find module …/selector-carrito/build.mjs`.
+  Nuevo script `build:backend` (`react-router build`); `build` = `build:backend && build:embed`, y el
+  `Dockerfile` ejecuta `npm run build:backend`. La imagen compila, arranca con variables mínimas y
+  `GET /healthz` responde 200. README §14 explica qué construye cada etapa y por qué no el embed.
+- **T156**: `typecheck` = `react-router typegen && tsc --noEmit && npm run typecheck --workspaces
+  --if-present` (7 `tsc`: raíz + 6 workspaces). Los 2 errores de `selector-carrito/src/main.ts` se
+  corrigieron sin cambiar comportamiento: `interruptorDemo` se agrega con un spread condicional (se omite
+  la propiedad en vez de pasar `undefined`) y `atributosModoDemo` declara `Record<string, string>`. No se
+  aplicó Prettier a `main.ts`: el archivo ya no seguía el formato de Prettier antes y reformatearlo ensucia
+  el diff (el repo no verifica formato en `lint`). README §12: descripción de `typecheck` y estado actual
+  (278 tests; cobertura de dominio/aplicación entre 95.2 % y 100 %, recalculada).
+- **T157**: `@shopify/cli`, `@react-router/dev`, `@react-router/fs-routes` y `vite-tsconfig-paths` pasaron
+  a `devDependencies`; el `package-lock.json` regenerado con `npm install` solo cambia la ubicación y los
+  flags `dev` (sin cambios de versión). `npm run build`, `npm test`, `npm run lint` y `npx shopify version`
+  (3.93.2) siguen funcionando; `npm run dev` no se pudo probar entero (`shopify app dev` necesita
+  Partners), pero `shopify` sigue instalado igual en local. Medido con `docker build`:
+  - Imagen: **82 MB comprimida / 314 MB descomprimida** (antes: 119 MB / 467 MB). La base `node:24-alpine`
+    sola ocupa 172 MB descomprimida; la app, 140 MB (`node_modules` de 139 MB, igual que lo previsto en la
+    sesión 13).
+  - `npm audit --omit=dev` dentro del contenedor: 0 vulnerabilidades. En la raíz del repo sí aparece la
+    cadena de `lodash`, porque cuenta las `dependencies` de los workspaces de las Functions
+    (`@shopify/shopify_function`); se aclaró en README §19.
+  - **Observación para un futuro converge (no es una tarea)**: descomprimida, la imagen supera los 250 MB
+    del §20.2 por el peso de la base; el objetivo se cumple medido comprimido. Lo más grande que queda es
+    `typescript` (23 MB), que npm instala como *peer* opcional de `@react-router/node`/`express`. Quitarlo
+    (p. ej. `npm ci --omit=dev --omit=peer` o borrarlo tras la instalación) no se hizo porque excede T157 y
+    habría que verificar que no rompe otros peers; queda documentado en README §14.
+- Verificado: `npm test` (278 OK, 6 omitidos), `npm run typecheck` (raíz + 6 workspaces) y `npm run lint`
+  en verde.
