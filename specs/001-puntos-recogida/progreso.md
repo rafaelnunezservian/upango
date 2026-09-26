@@ -5,10 +5,9 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 12 — Convergence (T143–T154; T142 pendiente de plataforma, ver sesión
-  12).
-- **Siguiente sesión**: 13 — volver a correr `/speckit-converge` para evaluar el código contra `spec.md`
-  después de la Phase 12.
+- **Última fase completada**: `/speckit-converge` de la sesión 13, que agregó la Phase 13 (T155–T157).
+  Phase 12 completa salvo T142 (pendiente de plataforma, ver sesión 12).
+- **Siguiente sesión**: 14 — `/speckit-implement` de la Phase 13 (T155–T157).
 
 ## Plan de sesiones
 
@@ -26,7 +25,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ✅ (T131–T133, T136 fuera de alcance en la nube) |
 | 11 | Cierre: `/speckit-converge` (el `/speckit-analyze` no se ejecutó) | — | ✅ (13 tareas nuevas, T142–T154) |
 | 12 | Phase 12 — Convergence | T143–T154 | ✅ (T142 pendiente de plataforma) |
-| 13 | `/speckit-converge` otra vez | — | ⏳ (siguiente) |
+| 13 | `/speckit-converge` otra vez | — | ✅ (3 tareas nuevas, T155–T157) |
+| 14 | Phase 13 — Convergence | T155–T157 | ⏳ (siguiente) |
 
 ## Cómo trabaja cada sesión
 
@@ -67,10 +67,9 @@ que necesita plataforma queda en la lista de abajo.
   Polaris web components cargados a mano, ver sesión 12), la landing `/` y que `npm run dev`
   (`scripts/dev.mjs`) levante `shopify app dev` con el watch del embed en PowerShell y bash (en la nube solo
   se probó el watch de esbuild, no `shopify app dev`).
-- `Dockerfile` (sesión 12): el nuevo `CMD` en forma exec solo se validó por lectura. Además, al revisarlo
-  apareció un riesgo previo, sin verificar por falta de Docker: la etapa `build` corre `npm run build` (que
-  incluye `build:embed`) pero no copia `packages/selector-carrito` ni los `package.json` de los demás
-  workspaces, así que `npm ci`/`npm run build` podrían fallar en un `docker build` real.
+- `Dockerfile` (sesión 12): el nuevo `CMD` en forma exec solo se validó por lectura. El riesgo de la etapa
+  `build` que se anotó aquí se confirmó en la sesión 13 reproduciendo el contexto sin Docker y ahora es la
+  tarea T155 (ver sesión 13). Queda de plataforma: un `docker build` real y `gcloud builds submit`.
 - T131 (checklist E2E manual del Anexo B, 25 casos), T132 (auditoría de accesibilidad WCAG 2.1 AA) y T133
   (Lighthouse con y sin la app): necesitan una development store real con Dawn/Horizon y un navegador,
   fuera del alcance de la sesión cloud (sesión 10). T136 (distribución en Partners Dashboard, FASE-10) es
@@ -626,3 +625,37 @@ que necesita plataforma queda en la lista de abajo.
   los workspaces". Candidato para el próximo `/speckit-converge`.
 - Verificado: `npm test` (278 OK, 6 omitidos), `npm run typecheck`, `npm run lint`, `npm run test:coverage`
   (umbrales cumplidos), `npm run build:embed` (19 908 bytes) y `npm run build` en verde.
+
+### Sesión 13 — `/speckit-converge`
+
+- Se volvió a evaluar el código contra `spec.md` (FR, NFR, SC, US/AC, EC, CT y §14–§25), `tasks.md` y la
+  constitución, después de la Phase 12. Resultado: 3 hallazgos agregados como `## Phase 13: Convergence`
+  (T155–T157) al final de `tasks.md`, sin tocar `spec.md`, `plan.md` ni código. T142 (y T090) siguen
+  bloqueadas por Partners y no se duplicaron.
+- **T155 (Dockerfile, riesgo de la sesión 12 confirmado)**: se reprodujo la etapa `build` en un directorio
+  temporal con los mismos `COPY`. `npm ci` **sí** funciona con solo el `package.json` de la raíz y el de
+  `packages/contratos` (npm tolera que falten las carpetas de los demás workspaces), y `react-router build`
+  termina bien; lo que falla es `build:embed`: `Cannot find module …/packages/selector-carrito/build.mjs`.
+  Copiar `packages/selector-carrito` no alcanza: el bundle se escribe en `extensions/selector-punto/assets`,
+  que `.dockerignore` excluye, y el contenedor no lo necesita (§20.2 pide solo el build de React Router).
+  Por eso la tarea propone un `build:backend` para el Dockerfile. `dockerd` está instalado en la sesión
+  cloud pero no corriendo (no hay `/var/run/docker.sock`); la sesión 14 puede intentar arrancarlo.
+- **T156 (typecheck)**: `tsc --noEmit` por workspace pasa en `contratos`, `ocultar-envios`,
+  `renombrar-recogida`, `punto-pedido` y `deploy`; solo `selector-carrito` tiene los 2 errores (ambos de
+  tipos, sin efecto en ejecución: `atributosModoDemo` declara `AtributosCarrito`, más amplio que el
+  `Record<string, string>` que realmente devuelve). El README §12 dice que `typecheck` cubre todos los
+  workspaces y su estado (240 tests) está desactualizado.
+- **T157 (dependencias de la imagen, hallazgo nuevo)**: `npm ci --omit=dev` con el `package.json` actual
+  instala 293 MB, porque `@shopify/cli`, `@react-router/dev`, `@react-router/fs-routes` y
+  `vite-tsconfig-paths` están en `dependencies` (arrastran typescript, vite, prettier, `@ast-grep`…).
+  Moviéndolos a `devDependencies` quedan 139 MB, `npm audit --omit=dev` da 0 vulnerabilidades (hoy 2 bajas,
+  por el esbuild de `@shopify/cli`) y el servidor arranca igual: se probó `react-router-serve` sobre el
+  build con esas dependencias y `GET /healthz` respondió 200. El `build/server/index.js` solo importa
+  paquetes de ejecución (`@react-router/node`, `@shopify/shopify-app-react-router`, `react`, `zod`…).
+- Sin hallazgos en el resto: catálogo de logs del §22, caché (TTL, LRU, SWR/SIE), proxy (CT-03), embed
+  (ajustes del CT-06, las 19 claves de locales del §17.1, ARIA del §17.5, observador del §17.4, timeout y
+  reintento del proxy), TOML de dev/prod sincronizados (CT-08), Functions (CT-04/CT-05), extensión de
+  pedido (CT-07), página de admin (§16), CLI de despliegue (CT-10/§20.4) y README (las 23 secciones del
+  §25). `npm audit` completo sigue igual que en la sesión 10 (15 altas en `@graphql-codegen/*`, solo
+  desarrollo).
+- Verificado: `npm test` (278 OK, 6 omitidos), `npm run typecheck` y `npm run lint` en verde.
