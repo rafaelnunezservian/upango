@@ -7,7 +7,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 - **Última fase completada**: Phase 10 — Docs y calidad (T127–T130, T134, T135; T131–T133 y T136 fuera de
   alcance de la nube, ver sesión 10).
-- **Siguiente sesión**: Cierre — `/speckit-analyze` + `/speckit-converge`.
+- **Siguiente sesión**: 12 — `/speckit-implement` de la Phase 12: Convergence (T143–T154; T142 queda
+  pendiente de plataforma como T090).
 
 ## Plan de sesiones
 
@@ -23,7 +24,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 8 | Phase 7 — US-5 | T096–T109 | ✅ |
 | 9 | Phase 8 — US-6 | T110–T122 | ✅ (T123 pendiente de plataforma) |
 | 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ✅ (T131–T133, T136 fuera de alcance en la nube) |
-| 11 | Cierre: `/speckit-analyze` + `/speckit-converge` | — | ⏳ (siguiente) |
+| 11 | Cierre: `/speckit-converge` (el `/speckit-analyze` no se ejecutó) | — | ✅ (13 tareas nuevas, T142–T154) |
+| 12 | Phase 12 — Convergence | T143–T154 | ⏳ (siguiente; T142 pendiente de plataforma) |
 
 ## Cómo trabaja cada sesión
 
@@ -548,3 +550,18 @@ que necesita plataforma queda en la lista de abajo.
   manual), T132 (accesibilidad WCAG 2.1 AA) ni T133 (Lighthouse) — necesitan una tienda real y un navegador
   contra Dawn/Horizon, fuera del alcance de la sesión cloud (agregado arriba en la fase de testing). T136
   (Partners Dashboard) tampoco: es la FASE-10, operativa y explícitamente fuera de esta sesión.
+
+### Sesión 11 — `/speckit-converge`
+
+- Se evaluó el código contra `spec.md` (FR, NFR, SC, US/AC, EC, CT y §14–§25), `tasks.md` y la constitución.
+  Resultado: 13 hallazgos agregados como `## Phase 12: Convergence` (T142–T154) al final de `tasks.md`, sin
+  tocar `spec.md`, `plan.md` ni código.
+- Hallazgos principales: los fixtures de las Functions no se ejecutan en `npm test` (ni sobre wasm, T142,
+  bloqueado por Partners; ni sobre los adaptadores TS, T143); `test:coverage` no tiene umbral del 90 %
+  (T144); falta `app/routes/auth.login/*` del template (T145); restos del template en inglés (T146, T147);
+  catálogo de logs del §22 incompleto y con otros nombres (T148); `stale: true` también en SWR (T149);
+  respaldo del EC-15 sin implementar (T150).
+- Menores: watch del embed en `npm run dev` (T151), enlace compacto sin `Shopify.routes.root` (T152),
+  `SIGTERM` con `npm` como PID 1 (T153) y `process.env` directo en `app.tsx` (T154).
+- Aviso para T150: el bundle está en 19 717 bytes (margen de 763 bytes hasta el límite de 20 KB).
+- Verificado: `npm test` (240 OK, 6 omitidos) y `npm run build:embed` en verde; no hubo cambios de código.
