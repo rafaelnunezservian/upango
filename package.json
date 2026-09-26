@@ -49,15 +49,15 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.36.0",
-    "@shopify/api-codegen-preset": "^1.2.0",
+    "@shopify/api-codegen-preset": "^3.0.0",
     "@shopify/polaris-types": "^1.0.1",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.18.8",
     "@types/react": "^18.3.25",
     "@types/react-dom": "^18.3.7",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "@vitest/coverage-v8": "^2.1.9",
+    "@typescript-eslint/eslint-plugin": "^8.70.1",
+    "@typescript-eslint/parser": "^8.70.1",
+    "@vitest/coverage-v8": "^4.1.11",
     "esbuild": "^0.24.2",
     "eslint": "^8.57.1",
     "eslint-import-resolver-typescript": "^3.10.1",
@@ -70,8 +70,8 @@
     "prettier": "^3.6.2",
     "tsx": "^4.19.2",
     "typescript": "^5.9.3",
-    "vite": "^6.3.6",
-    "vitest": "^2.1.9"
+    "vite": "^7.3.6",
+    "vitest": "^4.1.11"
   },
   "workspaces": [
     "packages/*",

@@ -319,15 +319,15 @@ flujo completo sin devtools.
 
 **Purpose**: Documentación completa, validación E2E manual y hardening final que cruza todas las historias.
 
-- [ ] T127 [P] Redactar `README.md` completo en español con las 23 secciones obligatorias de §25 (comandos en PowerShell y bash donde difieran)
-- [ ] T128 [P] Documentar en el README la guía reproducible de compilación TS→wasm de las Functions (§18.3 completo) con el conteo real de instrucciones medido en T090 y el plan B en Rust
-- [ ] T129 [P] Documentar en el README la guía paso a paso de despliegue en GCP (§20.5) y la guía para agregar otro proveedor (§20.7, ejemplo Azure)
-- [ ] T130 [P] Documentar en el README la tabla de troubleshooting (§25 punto 20: sin opciones de entrega, selector no aparece, tarifa visible en carrito normal, proxy 404/401, Functions no se ejecutan, bloque de pedido no aparece, error de 25 personalizaciones, fallos por cada paso de deploy)
+- [x] T127 [P] Redactar `README.md` completo en español con las 23 secciones obligatorias de §25 (comandos en PowerShell y bash donde difieran)
+- [x] T128 [P] Documentar en el README la guía reproducible de compilación TS→wasm de las Functions (§18.3 completo) con el conteo real de instrucciones medido en T090 y el plan B en Rust — el conteo real queda marcado como pendiente de medir (T090 sigue bloqueado por Partners, ver sesión 6/10 de `progreso.md`); el resto de la guía y el plan B están completos
+- [x] T129 [P] Documentar en el README la guía paso a paso de despliegue en GCP (§20.5) y la guía para agregar otro proveedor (§20.7, ejemplo Azure)
+- [x] T130 [P] Documentar en el README la tabla de troubleshooting (§25 punto 20: sin opciones de entrega, selector no aparece, tarifa visible en carrito normal, proxy 404/401, Functions no se ejecutan, bloque de pedido no aparece, error de 25 personalizaciones, fallos por cada paso de deploy)
 - [ ] T131 Ejecutar el checklist E2E manual completo del Anexo B (25 casos E2E-01 a E2E-25) en Dawn y Horizon, `/cart` y drawer, escritorio y móvil
 - [ ] T132 [P] Auditoría de accesibilidad WCAG 2.1 AA sobre el selector de carrito y la página admin
 - [ ] T133 [P] Medir Lighthouse en páginas de carrito con y sin la app, verificando pérdida ≤10 puntos (NFR-04) y cero llamadas al backend en carritos normales
-- [ ] T134 Ejecutar `npm audit` y resolver vulnerabilidades críticas/altas
-- [ ] T135 Verificar cobertura de línea ≥90% en `app/domain`, `app/application`, `packages/contratos`, `packages/selector-carrito/src/{dominio,aplicacion}`, `extensions/*/src/dominio`, `deploy/src/{dominio,aplicacion}` vía `npm run test:coverage`
+- [x] T134 Ejecutar `npm audit` y resolver vulnerabilidades críticas/altas — las 2 críticas resueltas (bump de `vitest`/`@vitest/coverage-v8` a 4.1.11); de las 23 altas originales, 8 resueltas (`@typescript-eslint/*` a 8.70.1, `vite` a 7.3.6, `minimatch`); las 15 altas y 1 moderada restantes son devDependencies de `@graphql-codegen/*` sin fix publicado (`fixAvailable: false`), documentadas en README §19
+- [x] T135 Verificar cobertura de línea ≥90% en `app/domain`, `app/application`, `packages/contratos`, `packages/selector-carrito/src/{dominio,aplicacion}`, `extensions/*/src/dominio`, `deploy/src/{dominio,aplicacion}` vía `npm run test:coverage`
 
 **Checkpoint**: SC-001 a SC-011 verificados; Anexo B completo.
 
