@@ -5,8 +5,9 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 
 ## Estado actual
 
-- **Última fase completada**: Phase 8 — US-6 (T110–T122; T123 pendiente de plataforma).
-- **Siguiente sesión**: Phase 10 — Docs y calidad (T127–T130, T134, T135).
+- **Última fase completada**: Phase 10 — Docs y calidad (T127–T130, T134, T135; T131–T133 y T136 fuera de
+  alcance de la nube, ver sesión 10).
+- **Siguiente sesión**: Cierre — `/speckit-analyze` + `/speckit-converge`.
 
 ## Plan de sesiones
 
@@ -21,8 +22,8 @@ al cerrar. Las tareas viven en [`tasks.md`](./tasks.md); el diseño, en [`spec.m
 | 7 | Phase 6 — US-4 | T092–T095 | ✅ |
 | 8 | Phase 7 — US-5 | T096–T109 | ✅ |
 | 9 | Phase 8 — US-6 | T110–T122 | ✅ (T123 pendiente de plataforma) |
-| 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ⏳ (siguiente) |
-| 11 | Cierre: `/speckit-analyze` + `/speckit-converge` | — | ⏳ |
+| 10 | Phase 10 — Docs y calidad | T127–T130, T134, T135 | ✅ (T131–T133, T136 fuera de alcance en la nube) |
+| 11 | Cierre: `/speckit-analyze` + `/speckit-converge` | — | ⏳ (siguiente) |
 
 ## Cómo trabaja cada sesión
 
@@ -52,7 +53,12 @@ que necesita plataforma queda en la lista de abajo.
 - T090 (medir instrucciones de `ocultar-envios`/`renombrar-recogida` con `shopify app function run` sobre el
   fixture de peor caso, NFR-06): no se pudo completar en la sesión cloud. Ver sesión 6 para el diagnóstico
   exacto (`shopify app function schema` devuelve 403 sin una app vinculada a Partners) y qué falta para
-  correrlo: T001 (Partners) y luego `npm run typegen`/`npm run build` en cada extensión.
+  correrlo: T001 (Partners) y luego `npm run typegen`/`npm run build` en cada extensión. El README (§8) deja
+  el conteo marcado como pendiente de medir en vez de inventarlo (sesión 10).
+- T131 (checklist E2E manual del Anexo B, 25 casos), T132 (auditoría de accesibilidad WCAG 2.1 AA) y T133
+  (Lighthouse con y sin la app): necesitan una development store real con Dawn/Horizon y un navegador,
+  fuera del alcance de la sesión cloud (sesión 10). T136 (distribución en Partners Dashboard, FASE-10) es
+  operativa y también queda fuera.
 - Checkpoint de la extensión `punto-pedido` (T092–T095, ver sesión 7): `shopify app dev`/`deploy` la registra
   como bloque de app disponible en Configuración → Checkout → Personalizar → página de estado del pedido;
   falta confirmar en una tienda real que el comerciante puede agregarla y que el bloque "Punto de recogida"
@@ -482,3 +488,63 @@ que necesita plataforma queda en la lista de abajo.
   `npm run typecheck` (raíz y `--workspace=deploy`) y `npm run lint` sin errores. No se pudo compilar el
   `Dockerfile` (sin daemon de Docker en la sesión cloud) ni desplegar contra un proyecto GCP real — T123 y el
   resto quedan en "Pendiente de validar en plataforma" arriba.
+
+### Sesión 10 — Phase 10 (Docs y calidad)
+
+- **`README.md` reescrito por completo** (T127–T130): las 23 secciones de §25, con comandos en bash y
+  PowerShell donde difieren. La guía TS→wasm (§8 del README, §18.3 del spec) y el plan B en Rust están
+  completos; el conteo real de instrucciones del fixture de peor caso queda marcado explícitamente como
+  pendiente de medir (T090 sigue bloqueado por Partners, sesión 6) en vez de inventado. Despliegue en GCP
+  (§14) y guía para agregar un proveedor con el ejemplo de Azure (§16) documentados a partir del §20.4/20.7
+  literal del spec. Tabla de troubleshooting (§20 del README) con los 8 síntomas mínimos del §25 punto 20.
+- **`npm audit` (T134) — 2 críticas resueltas, 15 altas + 1 moderada sin fix publicado**: el estado al
+  empezar la sesión era 2 críticas y 23 altas (`vitest`/`@vitest/coverage-v8` 2.1.9 vulnerables a lectura
+  arbitraria de archivos vía el servidor de UI y a *path traversal* vía `@vitest/mocker`; cadena de
+  `@typescript-eslint/*` 6.21 con `minimatch` vulnerable a ReDoS; cadena de `@graphql-codegen/*` vía
+  `@shopify/api-codegen-preset` 1.2.0 y `@shopify/shopify_function` con `lodash` vulnerable). Se subieron
+  `vitest`/`@vitest/coverage-v8` a **4.1.11** en los 7 `package.json` del monorepo (root +
+  `packages/contratos`, `packages/selector-carrito`, `deploy`, `extensions/ocultar-envios`,
+  `extensions/punto-pedido`, `extensions/renombrar-recogida` — cada workspace fija su propia versión de
+  `vitest`, no solo la raíz), `vite` a `^7.3.6` (peer de vitest 4) y `@typescript-eslint/eslint-plugin`/
+  `@typescript-eslint/parser` a `^8.70.1`. Se probó primero `vitest@5.0.2` (la última en ese momento): sube
+  igual de bien las críticas, pero se descartó porque el hallazgo de fondo (ver el punto siguiente) aparece
+  igual en la 5.x y la 4.1.11 ya trae el parche de ambos CVE (rangos `<3.2.6` y `<4.1.11` respectivamente),
+  así que se prefirió el salto de versión más chico. La cadena de `@graphql-codegen/*` (11 paquetes) +
+  `lodash` no tiene fix disponible incluso con `@shopify/api-codegen-preset` en su última versión (3.0.0):
+  llega también por `@shopify/shopify_function@~2.0.0` (fijado a esa versión exacta desde la sesión 6 porque
+  es la que exige `shopify app function build` real), que trae su propia copia vieja de
+  `@graphql-codegen/cli`. `npm audit` confirma `fixAvailable: false` en los paquetes de nivel más alto de esa
+  cadena. Quedan documentadas en el README (§19) como devDependencies que nunca corren en producción (el
+  `Dockerfile` no instala `devDependencies` en la etapa final) ni en `npm test`/`typecheck`/`lint`/`build`.
+- **Hallazgo no numerado, encontrado al validar el bump de `vitest`**: subir de la rama 2.x a la 4.x/5.x
+  rompió los tests de `packages/selector-carrito` y `extensions/punto-pedido` (`ReferenceError: document is
+  not defined`, con archivos de test duplicados y ejecutados dos veces bajo el proyecto equivocado). Causa
+  raíz: `vitest.workspace.ts` (formato de `defineWorkspace`, deprecado desde Vitest 3) no tenía un
+  `vitest.config.ts` propio en la raíz, así que Vitest terminaba usando el `vite.config.ts` de la app (con
+  el plugin de React Router) como base de **todos** los proyectos del workspace — de ahí que cada ejecución
+  mostrara los *Future Flag Warning* de React Router incluso al testear `deploy/` o `packages/contratos`, y
+  que el `environment: "jsdom"` de `selector-carrito`/`punto-pedido` se perdiera al mezclarse con el
+  `environment: "node"` por defecto. Arreglado reemplazando `vitest.workspace.ts` por un `vitest.config.ts`
+  en la raíz con `test.projects` (la sucesión soportada desde Vitest 3) y agregando `root:
+  import.meta.dirname` a cada `vitest.config.ts` de workspace, para que cada proyecto quede anclado a su
+  propio directorio sin depender de cómo Vitest resuelva el root del monorepo. No estaba en ningún tasks.md
+  porque no es una tarea de esta fase: es una regresión de la propia migración de dependencias, necesaria
+  para que T134 no dejara el `npm test` roto.
+- **Cobertura (T135) — ya cumplía el umbral antes de tocar nada**: al medir con `npm run test:coverage`, los
+  6 scopes de dominio/aplicación ya estaban en 100% salvo `app/application` (98.3%),
+  `packages/selector-carrito/src/aplicacion` (95.2%) y `deploy/src/aplicacion` (90.0%, justo en el borde) —
+  todos por encima del 90% exigido. El único hueco real de código sin ejercitar (no solo interfaces
+  `*.ts` que se compilan a cero sentencias, como los `app/application/ports/*.ts`, que no cuentan ni suman
+  ni restan) era `deploy/src/dominio/pasos.ts` (`esPasoValido`, 11 líneas, 0% cubierto): se agregó
+  `deploy/src/dominio/pasos.test.ts` (8 tests) para cerrarlo, aunque el reporte de cobertura de la nueva
+  versión de `@vitest/coverage-v8` ya no lo contaba en el denominador (cambio de comportamiento entre
+  versiones: antes, un archivo importado pero sin ejecutar contaba como 0%; ahora, un archivo que ningún
+  test importa directamente queda fuera del reporte). Se prefirió escribir el test igual, en vez de confiar
+  en que el umbral se cumpliera "por omisión" del reporte.
+- Verificado: `npm test` (240 tests OK, 6 omitidos), `npm run typecheck` y `npm run lint` sin errores;
+  `npm audit`: 0 críticas (antes 2), 15 altas + 1 moderada + 1 baja sin fix publicado (antes 23 altas + 3
+  moderadas + 1 baja); cobertura de línea ≥90% verificada en los 6 scopes de dominio/aplicación exigidos por
+  T135 (100% en 6 de ellos, 98.3%/95.2%/90.0% en los otros 3). No se pudo ejecutar T131 (checklist E2E
+  manual), T132 (accesibilidad WCAG 2.1 AA) ni T133 (Lighthouse) — necesitan una tienda real y un navegador
+  contra Dawn/Horizon, fuera del alcance de la sesión cloud (agregado arriba en la fase de testing). T136
+  (Partners Dashboard) tampoco: es la FASE-10, operativa y explícitamente fuera de esta sesión.
