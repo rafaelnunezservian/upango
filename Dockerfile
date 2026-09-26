@@ -10,7 +10,9 @@ COPY tsconfig.json tsconfig.base.json vite.config.ts ./
 COPY app ./app
 COPY packages/contratos ./packages/contratos
 COPY public ./public
-RUN npm run build
+# Solo el build de React Router (§20.2): el bundle del embed se escribe en
+# `extensions/`, que `.dockerignore` excluye y el contenedor no necesita.
+RUN npm run build:backend
 
 FROM node:24-alpine AS runtime
 ENV NODE_ENV=production
