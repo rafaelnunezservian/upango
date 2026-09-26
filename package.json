@@ -5,7 +5,8 @@
   "scripts": {
     "build": "react-router build && npm run build:embed",
     "build:embed": "node packages/selector-carrito/build.mjs",
-    "dev": "shopify app dev --config dev",
+    "dev": "node scripts/dev.mjs",
+    "build:embed:watch": "node packages/selector-carrito/build.mjs --watch",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "tsx deploy/src/cli.ts",

@@ -3,7 +3,8 @@ import type { DatosPuntoRecogida, PuntoRecogida } from "../../domain/puntoRecogi
 import { crearPuntoRecogida } from "../../domain/puntoRecogida.js";
 import { PuntoInvalidoError, PuntosNoDisponiblesError } from "../../domain/errores.js";
 import type { CachePuntos } from "../ports/cachePuntos.js";
-import type { FuentePuntos } from "../ports/fuentePuntos.js";
+import type { FuentePuntos, MetricasCargaPuntos } from "../ports/fuentePuntos.js";
+import { FuentePuntosError } from "../ports/fuentePuntos.js";
 import type { Registro } from "../ports/registro.js";
 import type { Reloj } from "../ports/reloj.js";
 
@@ -18,34 +19,53 @@ function mensajeDeError(error: unknown): string {
 }
 
 /**
+ * De dónde salió la respuesta, para el evento `proxy.puntos.respuesta` (§22):
+ * `fresca` (caché dentro del TTL), `vencida` (caché vencida servida mientras
+ * se refresca), `cargada` (recién leída de Shopify) o `stale` (copia vencida
+ * servida porque Shopify falló).
+ */
+export type EstadoCachePuntos = "fresca" | "vencida" | "cargada" | "stale";
+
+export interface ResultadoListarPuntos {
+  readonly respuesta: RespuestaPuntosDto;
+  readonly estadoCache: EstadoCachePuntos;
+}
+
+/**
  * Caso de uso del CT-03 (FR-016, §15.2): sirve la lista de puntos de una
  * tienda desde la caché cuando está fresca; si está vencida pero dentro del
- * máximo permitido, la sirve marcada `stale: true` y dispara como mucho un
- * refresco en segundo plano por tienda (*stale-while-revalidate*); si no hay
- * copia válida, carga desde `fuente` (con *single-flight* entre peticiones
- * simultáneas de la misma tienda) y lanza `PuntosNoDisponiblesError` si la
- * carga falla sin ninguna copia de respaldo (*stale-if-error*, hasta el
- * máximo del CachePuntos).
+ * máximo permitido, la sirve y dispara como mucho un refresco en segundo
+ * plano por tienda (*stale-while-revalidate*). Solo la marca `stale: true`
+ * cuando el último refresco de esa tienda falló, es decir, cuando se sirve
+ * porque Shopify falló (*stale-if-error*, CT-03). Si no hay copia válida,
+ * carga desde `fuente` (con *single-flight* entre peticiones simultáneas de
+ * la misma tienda) y lanza `PuntosNoDisponiblesError` si la carga falla.
  */
 export class ListarPuntosRecogida {
   private readonly cargasEnCurso = new Map<string, Promise<RespuestaPuntosDto>>();
   private readonly refrescosEnCurso = new Set<string>();
+  /** Tiendas cuya última carga desde Shopify falló (se limpia con la próxima que tenga éxito). */
+  private readonly tiendasConFallo = new Set<string>();
 
   constructor(private readonly deps: DependenciasListarPuntosRecogida) {}
 
-  async ejecutar(tienda: string, fuente: FuentePuntos): Promise<RespuestaPuntosDto> {
+  async ejecutar(tienda: string, fuente: FuentePuntos): Promise<ResultadoListarPuntos> {
     const entrada = this.deps.cache.leer(tienda);
 
     if (entrada?.fresca) {
-      return entrada.respuesta;
+      return { respuesta: entrada.respuesta, estadoCache: "fresca" };
     }
 
     if (entrada) {
       this.dispararRefrescoEnSegundoPlano(tienda, fuente);
-      return { ...entrada.respuesta, stale: true };
+      if (this.tiendasConFallo.has(tienda)) {
+        return { respuesta: { ...entrada.respuesta, stale: true }, estadoCache: "stale" };
+      }
+      return { respuesta: entrada.respuesta, estadoCache: "vencida" };
     }
 
-    return this.cargarConSingleFlight(tienda, fuente);
+    const respuesta = await this.cargarConSingleFlight(tienda, fuente);
+    return { respuesta, estadoCache: "cargada" };
   }
 
   private cargarConSingleFlight(
@@ -78,52 +98,87 @@ export class ListarPuntosRecogida {
   }
 
   private async cargar(tienda: string, fuente: FuentePuntos): Promise<RespuestaPuntosDto> {
-    let crudos;
+    const inicio = this.deps.reloj.ahora().getTime();
+    let resultado;
     try {
-      crudos = await fuente.obtenerTodos();
+      resultado = await fuente.obtenerTodos();
     } catch (error) {
-      this.deps.registro.error("puntos.carga_fallida", {
+      this.tiendasConFallo.add(tienda);
+      this.deps.registro.error("puntos.carga.error", {
         tienda,
-        motivo: mensajeDeError(error),
+        error: mensajeDeError(error),
+        reintentos: error instanceof FuentePuntosError ? error.reintentos : 0,
       });
       throw new PuntosNoDisponiblesError(tienda);
     }
+    this.tiendasConFallo.delete(tienda);
 
-    const respuesta = this.construirRespuesta(tienda, crudos);
+    const { respuesta, invalidos, duplicados } = this.construirRespuesta(tienda, resultado.puntos);
     this.deps.cache.guardar(tienda, respuesta);
+    this.registrarCarga(tienda, resultado.metricas, {
+      total: respuesta.total,
+      invalidos,
+      duplicados,
+      duracionMs: this.deps.reloj.ahora().getTime() - inicio,
+    });
     return respuesta;
+  }
+
+  private registrarCarga(
+    tienda: string,
+    metricas: MetricasCargaPuntos,
+    resumen: { total: number; invalidos: number; duplicados: number; duracionMs: number },
+  ): void {
+    this.deps.registro.info("puntos.carga", {
+      tienda,
+      paginas: metricas.paginas,
+      total: resumen.total,
+      invalidos: resumen.invalidos,
+      duplicados: resumen.duplicados,
+      costo: metricas.costo,
+      duracionMs: resumen.duracionMs,
+    });
   }
 
   private construirRespuesta(
     tienda: string,
     crudos: readonly DatosPuntoRecogida[],
-  ): RespuestaPuntosDto {
+  ): { respuesta: RespuestaPuntosDto; invalidos: number; duplicados: number } {
     const validos: PuntoRecogida[] = [];
-    const idsVistos = new Set<string>();
+    const gidsPorIdentificador = new Map<string, string[]>();
+    let invalidos = 0;
 
     for (const crudo of crudos) {
       try {
         const punto = crearPuntoRecogida(crudo);
-        if (idsVistos.has(punto.id)) {
-          this.deps.registro.warn("puntos.identificador_duplicado", { tienda, id: punto.id });
-        }
-        idsVistos.add(punto.id);
+        const gids = gidsPorIdentificador.get(punto.id) ?? [];
+        gids.push(punto.gid);
+        gidsPorIdentificador.set(punto.id, gids);
         validos.push(punto);
       } catch (error) {
         if (!(error instanceof PuntoInvalidoError)) {
           throw error;
         }
-        this.deps.registro.warn("puntos.invalido_descartado", {
+        invalidos += 1;
+        this.deps.registro.warn("puntos.invalido", {
           tienda,
-          identificador: error.identificador ?? crudo.id,
+          gid: crudo.gid,
           motivo: error.motivo,
         });
       }
     }
 
+    let duplicados = 0;
+    for (const [identificador, gids] of gidsPorIdentificador) {
+      if (gids.length > 1) {
+        duplicados += 1;
+        this.deps.registro.warn("puntos.duplicado", { tienda, identificador, gids });
+      }
+    }
+
     validos.sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
 
-    return {
+    const respuesta: RespuestaPuntosDto = {
       version: 1,
       generadoEn: this.deps.reloj.ahora().toISOString(),
       stale: false,
@@ -138,5 +193,6 @@ export class ListarPuntosRecogida {
         lng: punto.coordenadas.lng,
       })),
     };
+    return { respuesta, invalidos, duplicados };
   }
 }

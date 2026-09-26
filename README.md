@@ -387,7 +387,9 @@ npm run build:embed
 `packages/selector-carrito/build.mjs` genera un único archivo IIFE, minificado, en
 `extensions/selector-punto/assets/selector-punto.js`, y **falla el build si supera 20 KB** (NFR-03,
 margen ajustado: el bundle actual ronda ese límite, así que cualquier cambio a este paquete debe vigilar el
-peso de cerca).
+peso de cerca). `npm run dev` lo ejecuta en modo watch (`npm run build:embed:watch`, que avisa del peso en
+cada rebuild sin cortar el watch) junto a `shopify app dev` mediante `scripts/dev.mjs`, sin dependencias
+extra, así que funciona igual en PowerShell y en bash.
 
 **Ajustes editables por el comerciante** (ver `extensions/selector-punto/locales/es.default.schema.json`):
 
@@ -564,6 +566,14 @@ URL real del servicio.
 
 **Ver logs**: en el Logs Explorer de Google Cloud, o con `gcloud run services logs read <servicio>`.
 
+**Apagado ordenado**: al escalar a cero o al cambiar de revisión, Cloud Run envía `SIGTERM` y, 10 segundos
+después, `SIGKILL`. El `Dockerfile` arranca el servidor en forma exec, sin `npm` en medio
+(`CMD ["node_modules/.bin/react-router-serve", "./build/server/index.js"]`), para que el propio servidor
+sea el PID 1 y reciba la señal: `react-router-serve` la atiende cerrando el servidor HTTP después de
+terminar las peticiones en curso. `npm run start` sigue sirviendo para arrancarlo a mano, pero no como
+`CMD` del contenedor (npm no reenvía `SIGTERM` a su hijo). Si se ejecuta la imagen con `docker run`
+fuera de Cloud Run, `docker run --init` agrega además un init mínimo que recoge procesos huérfanos.
+
 **Costos**: con 0 instancias mínimas, Cloud Run se paga solo por uso. Firestore guarda unos pocos documentos
 de sesión, Secret Manager un secreto, Artifact Registry las imágenes (conviene una política de limpieza) y
 Cloud Build consume minutos de build. Ver las páginas oficiales de precios de cada servicio para cifras
@@ -642,17 +652,21 @@ otro proveedor — interpreta sin configuración adicional):
 
 | Evento | Nivel | Datos |
 |---|---|---|
-| `proxy.puntos.respuesta` | INFO | tienda, estado de la caché (fresca, vencida, cargada o *stale*), total, duración |
-| `puntos.carga` | INFO | tienda, páginas, total, inválidos, duplicados, costo de la consulta, duración |
-| `puntos.invalido` / `puntos.duplicado` | WARNING | tienda, identificador del punto, motivo |
-| `puntos.carga.error` | ERROR | tienda, error, reintentos |
+| `proxy.puntos.respuesta` | INFO | `tienda`, `estadoCache` (`fresca`, `vencida`, `cargada` o `stale`), `total`, `duracionMs` |
+| `puntos.carga` | INFO | `tienda`, `paginas`, `total`, `invalidos`, `duplicados`, `costo` (suma del costo real de las consultas), `duracionMs` |
+| `puntos.invalido` | WARNING | `tienda`, `gid`, `motivo` |
+| `puntos.duplicado` | WARNING | `tienda`, `identificador`, `gids` |
+| `puntos.carga.error` | ERROR | `tienda`, `error`, `reintentos` |
+| `proxy_puntos.error_inesperado` | ERROR | `tienda`, `motivo`, `stack` (respuesta 500; nunca la sesión ni el token) |
 | `personalizaciones.activacion` | INFO | tienda, creadas, activadas, errores |
 | `webhook.recibido` | INFO | topic, tienda |
 | `sesiones.borradas` | INFO | tienda, cantidad |
 | `config.invalida` | ERROR | nombres de las variables faltantes (**nunca** sus valores) |
 
-Cada log incluye `requestId` cuando la petición trae `traceparent` o `x-cloud-trace-context`, para
-correlacionar una petición del proxy con sus reintentos.
+Cada log incluye `requestId` cuando la petición trae `traceparent` (el *trace-id* W3C) o
+`x-cloud-trace-context` (el que agrega Cloud Run), para correlacionar una petición del proxy con su carga
+de puntos y sus reintentos. Las rutas lo propagan con `contenedor.conContextoPeticion` (un
+`AsyncLocalStorage` que `RegistroJson` consulta al escribir cada línea).
 
 **Alertas sugeridas**: tasa de respuestas 5xx en `/proxy/puntos`, repetición de `puntos.carga.error` y
 reinicios del contenedor.
@@ -660,8 +674,9 @@ reinicios del contenedor.
 **Comportamiento de la caché**: `CachePuntos` guarda una copia por tienda con TTL (`PUNTOS_CACHE_TTL_SEGUNDOS`,
 5 minutos por defecto) y un máximo de vejez (`PUNTOS_CACHE_STALE_MAX_SEGUNDOS`, 24 h por defecto) antes de
 dejar de servirla incluso como respaldo. Mientras la copia está vencida pero no supera el máximo de vejez,
-el proxy la sirve igual (*stale-while-revalidate*, con un refresco en segundo plano) y, si la fuente falla,
-sigue sirviéndola (*stale-if-error*). **Para ver un cambio recién hecho en un punto al instante**: esperar
+el proxy la sirve igual (*stale-while-revalidate*, con un refresco en segundo plano; `stale: false`) y, si
+la fuente falla, sigue sirviéndola marcada `stale: true` hasta que un refresco vuelva a funcionar
+(*stale-if-error*, `estadoCache: "stale"` en el log). **Para ver un cambio recién hecho en un punto al instante**: esperar
 a que venza el TTL, o redesplegar el backend (que reinicia la caché en memoria).
 
 ## 19. Seguridad y privacidad

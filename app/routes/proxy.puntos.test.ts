@@ -28,6 +28,7 @@ function peticion(): Request {
 
 describe("proxy.puntos loader", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.mocked(authenticate.public.appProxy).mockReset();
     vi.spyOn(contenedor.listarPuntosRecogida, "ejecutar").mockReset();
   });
@@ -61,13 +62,23 @@ describe("proxy.puntos loader", () => {
       total: 0,
       puntos: [],
     };
-    vi.spyOn(contenedor.listarPuntosRecogida, "ejecutar").mockResolvedValue(dto);
+    vi.spyOn(contenedor.listarPuntosRecogida, "ejecutar").mockResolvedValue({
+      respuesta: dto,
+      estadoCache: "cargada",
+    });
+    const info = vi.spyOn(contenedor.registro, "info");
 
     const respuesta = await loader({ request: peticion() } as never);
 
     expect(respuesta.status).toBe(200);
     expect(respuesta.headers.get("Cache-Control")).toBe("public, max-age=60");
     await expect(respuesta.json()).resolves.toEqual(dto);
+    expect(info).toHaveBeenCalledWith("proxy.puntos.respuesta", {
+      tienda: "tienda.myshopify.com",
+      estadoCache: "cargada",
+      total: 0,
+      duracionMs: expect.any(Number),
+    });
   });
 
   it("responde 502 con PUNTOS_NO_DISPONIBLES si el caso de uso falla por falta de copia (FR-016)", async () => {
@@ -96,10 +107,15 @@ describe("proxy.puntos loader", () => {
       admin: { graphql: vi.fn() },
     } as never);
     vi.spyOn(contenedor.listarPuntosRecogida, "ejecutar").mockRejectedValue(new Error("boom"));
+    const error = vi.spyOn(contenedor.registro, "error");
 
     const respuesta = await loader({ request: peticion() } as never);
 
     expect(respuesta.status).toBe(500);
+    expect(error).toHaveBeenCalledWith(
+      "proxy_puntos.error_inesperado",
+      expect.objectContaining({ motivo: "boom", stack: expect.stringContaining("Error: boom") }),
+    );
     await expect(respuesta.json()).resolves.toEqual({
       error: "ERROR_INTERNO",
       mensaje: "Error interno.",

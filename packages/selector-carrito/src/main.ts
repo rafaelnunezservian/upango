@@ -1,7 +1,7 @@
 import type { AtributosCarrito } from "@puntos-recogida/contratos";
 import { atributosModoDemo } from "./dominio/modoDemo.js";
 import { ControladorSelector } from "./aplicacion/ControladorSelector.js";
-import { ClienteCarritoAjax } from "./infraestructura/ClienteCarritoAjax.js";
+import { ClienteCarritoAjax, raizDeRutas } from "./infraestructura/ClienteCarritoAjax.js";
 import { ClientePuntosProxy } from "./infraestructura/ClientePuntosProxy.js";
 import { GuardiaCheckoutDom } from "./infraestructura/GuardiaCheckoutDom.js";
 import { ObservadorCarritoDom } from "./infraestructura/ObservadorCarritoDom.js";
@@ -30,6 +30,7 @@ interface TextosConfig extends TextosSelector {
 interface ConfigInicial {
   readonly tipoCarrito: string;
   readonly seleccion: Readonly<Record<string, string>> | null;
+  readonly rutaRaiz?: string;
   readonly urlPuntos: string;
   readonly ajustes: AjustesConfig;
   readonly textos: TextosConfig;
@@ -67,6 +68,7 @@ function iniciar(config: ConfigInicial): void {
       selectorInsercion: config.ajustes.selectorInsercion,
       selectorContextosCompactos: config.ajustes.selectorContextosCompactos,
       textoEnlaceCompacto: config.textos.enlaceCompacto,
+      rutaCarrito: `${raizDeRutas(config.rutaRaiz)}cart`,
       interruptorDemo: config.ajustes.modoDemo
         ? {
             etiqueta: config.textos.demoInterruptor,

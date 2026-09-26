@@ -8,6 +8,7 @@ function opciones() {
     selectorInsercion: "",
     selectorContextosCompactos: "#cart-notification",
     textoEnlaceCompacto: "Elige tu punto de recogida",
+    rutaCarrito: "/cart",
   };
 }
 
@@ -77,6 +78,48 @@ describe("InsertadorWidgets", () => {
     const enlace = document.querySelector<HTMLAnchorElement>(".pr-enlace-compacto");
     expect(enlace?.getAttribute("href")).toBe("/cart");
     expect(enlace?.textContent).toBe("Elige tu punto de recogida");
+  });
+
+  it("usa la ruta del carrito con prefijo de idioma en el enlace compacto (EC-17)", () => {
+    document.body.innerHTML = `
+      <div id="cart-notification">
+        <button name="checkout">Comprar</button>
+      </div>
+    `;
+    const vista = crearVistaFalsa();
+    const insertador = crear({ ...opciones(), rutaCarrito: "/en/cart" }, vista);
+    insertador.insertar();
+
+    expect(document.querySelector(".pr-enlace-compacto")?.getAttribute("href")).toBe("/en/cart");
+  });
+
+  it("sin botones reconocibles muestra el widget en la posición del embed (EC-15)", () => {
+    document.body.innerHTML = `
+      <main><p>Carrito</p></main>
+      <div class="pr-embed-raiz" hidden></div>
+    `;
+    const vista = crearVistaFalsa();
+    const insertador = crear(opciones(), vista);
+    insertador.insertar();
+
+    expect(vista.registrarInstancia).toHaveBeenCalledTimes(1);
+    const host = document.querySelector(".pr-host")!;
+    expect(host.nextElementSibling).toBe(document.querySelector(".pr-embed-raiz"));
+  });
+
+  it("retira el widget de respaldo cuando aparece un botón de checkout", () => {
+    document.body.innerHTML = `<div class="pr-embed-raiz" hidden></div>`;
+    const vista = crearVistaFalsa();
+    const insertador = crear(opciones(), vista);
+    insertador.insertar();
+    const respaldo = document.querySelector(".pr-host")!;
+
+    document.body.insertAdjacentHTML("afterbegin", `<form><button name="checkout">Comprar</button></form>`);
+    insertador.insertar();
+
+    expect(respaldo.isConnected).toBe(false);
+    expect(vista.eliminarInstancia).toHaveBeenCalledWith(respaldo);
+    expect(document.querySelector("button")!.previousElementSibling?.className).toBe("pr-host");
   });
 
   it("oculta el enlace compacto cuando el estado es inactivo o con_seleccion", () => {

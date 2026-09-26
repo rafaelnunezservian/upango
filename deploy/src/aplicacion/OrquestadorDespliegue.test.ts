@@ -133,6 +133,17 @@ describe("ejecutarDespliegue", () => {
     expect(proveedor.llamadas).toEqual(["prepararInfraestructura"]);
   });
 
+  it.each([
+    ["verificar", "verificarPrerrequisitos"],
+    ["secretos", "publicarSecretos"],
+    ["imagen", "construirImagen"],
+  ] as const)("--paso %s ejecuta solo %s", async (paso, llamada) => {
+    const proveedor = new ProveedorFalso();
+    await ejecutarDespliegue(entradaBase({ paso }), registroCon(proveedor));
+
+    expect(proveedor.llamadas).toEqual([llamada]);
+  });
+
   it("--paso servicio construye la imagen y despliega", async () => {
     const proveedor = new ProveedorFalso();
     await ejecutarDespliegue(entradaBase({ paso: "servicio" }), registroCon(proveedor));

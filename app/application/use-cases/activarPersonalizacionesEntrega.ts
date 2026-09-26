@@ -21,6 +21,7 @@ export const PERSONALIZACIONES_ENTREGA: readonly PersonalizacionEntregaHandle[] 
 ];
 
 export interface DependenciasActivarPersonalizacionesEntrega {
+  readonly tienda: string;
   readonly gateway: GatewayPersonalizaciones;
   readonly registro: Registro;
 }
@@ -39,6 +40,7 @@ export interface ResultadoActivarPersonalizacionesEntrega {
  * (US-5.3, EC-22).
  */
 export async function activarPersonalizacionesEntrega({
+  tienda,
   gateway,
   registro,
 }: DependenciasActivarPersonalizacionesEntrega): Promise<ResultadoActivarPersonalizacionesEntrega> {
@@ -70,7 +72,12 @@ export async function activarPersonalizacionesEntrega({
     }
   }
 
-  registro.info("personalizaciones.activadas", { creadas, activadas, errores: errores.length });
+  registro.info("personalizaciones.activacion", {
+    tienda,
+    creadas,
+    activadas,
+    errores: errores.length,
+  });
 
   return { creadas, activadas, errores };
 }

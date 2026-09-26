@@ -35,6 +35,7 @@ describe("webhooks.app.uninstalled action", () => {
       session: sesion,
       topic: "APP_UNINSTALLED",
     } as never);
+    const info = vi.spyOn(contenedor.registro, "info");
 
     const respuesta = await action({
       request: new Request("https://example.com/webhooks/app/uninstalled", {
@@ -43,6 +44,11 @@ describe("webhooks.app.uninstalled action", () => {
     } as never);
 
     expect(respuesta.status).toBe(200);
+    expect(info).toHaveBeenCalledWith("webhook.recibido", {
+      topic: "APP_UNINSTALLED",
+      tienda: shop,
+    });
+    info.mockRestore();
     await expect(
       contenedor.sessionStorage.findSessionsByShop(shop),
     ).resolves.toEqual([]);

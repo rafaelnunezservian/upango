@@ -26,4 +26,8 @@ COPY public ./public
 
 USER node
 EXPOSE 8080
-CMD ["npm", "run", "start"]
+# Apagado ordenado (§20.2): el servidor corre como PID 1 en forma exec, sin
+# `npm` en medio (npm no reenvía SIGTERM a su hijo). react-router-serve
+# registra SIGTERM/SIGINT y cierra el servidor HTTP dejando terminar las
+# peticiones en curso antes de que Cloud Run envíe SIGKILL.
+CMD ["node_modules/.bin/react-router-serve", "./build/server/index.js"]

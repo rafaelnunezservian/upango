@@ -33,6 +33,8 @@ describe("webhooks.app.scopes_update action", () => {
       payload: { current: ["write_delivery_customizations", "write_app_proxy"] },
     } as never);
 
+    const info = vi.spyOn(contenedor.registro, "info");
+
     const respuesta = await action({
       request: new Request("https://example.com/webhooks/app/scopes_update", {
         method: "POST",
@@ -40,6 +42,11 @@ describe("webhooks.app.scopes_update action", () => {
     } as never);
 
     expect(respuesta.status).toBe(200);
+    expect(info).toHaveBeenCalledWith("webhook.recibido", {
+      topic: "APP_SCOPES_UPDATE",
+      tienda: shop,
+    });
+    info.mockRestore();
     const actualizada = await contenedor.sessionStorage.loadSession(sesion.id);
     expect(actualizada?.scope).toBe(
       "write_delivery_customizations,write_app_proxy",

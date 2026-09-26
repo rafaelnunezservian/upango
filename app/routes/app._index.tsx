@@ -22,7 +22,13 @@ function mensajeDeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = ({ request }: LoaderFunctionArgs) =>
+  contenedor.conContextoPeticion(request, () => cargarEstado(request));
+
+export const action = ({ request }: ActionFunctionArgs) =>
+  contenedor.conContextoPeticion(request, () => ejecutarIntencion(request));
+
+async function cargarEstado(request: Request) {
   const { session, admin } = await authenticate.admin(request);
 
   try {
@@ -40,16 +46,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
     return { estado: null, error: es.errores.cargaFallida };
   }
-};
+}
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+async function ejecutarIntencion(request: Request) {
+  const { admin, session } = await authenticate.admin(request);
 
   const formData = await request.formData();
   const intencion = formData.get("intencion");
 
   if (intencion === "activar") {
     const resultado = await activarPersonalizacionesEntrega({
+      tienda: session.shop,
       gateway: contenedor.crearGatewayPersonalizaciones(admin.graphql),
       registro: contenedor.registro,
     });
@@ -73,7 +80,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   throw new Response("Intención desconocida.", { status: 400 });
-};
+}
 
 function resumenPersonalizaciones(
   personalizaciones: EstadoConfiguracion["personalizaciones"],

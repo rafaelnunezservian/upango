@@ -1,7 +1,11 @@
 import { GraphqlQueryError } from "@shopify/shopify-api";
 import type { AdminGraphqlClient } from "@shopify/shopify-app-react-router/server";
 import type { DatosPuntoRecogida } from "../../domain/puntoRecogida.js";
-import type { FuentePuntos } from "../../application/ports/fuentePuntos.js";
+import type {
+  FuentePuntos,
+  ResultadoFuentePuntos,
+} from "../../application/ports/fuentePuntos.js";
+import { FuentePuntosError } from "../../application/ports/fuentePuntos.js";
 import type { Registro } from "../../application/ports/registro.js";
 
 /** Tipo del metaobjeto app-owned declarado en CT-01. */
@@ -41,6 +45,7 @@ interface PaginaPuntos {
   readonly nodos: readonly NodoMetaobjeto[];
   readonly hasNextPage: boolean;
   readonly endCursor: string | null;
+  readonly costo: number;
 }
 
 async function esperarReal(milisegundos: number): Promise<void> {
@@ -85,6 +90,9 @@ function mapearNodoAPuntoCrudo(nodo: NodoMetaobjeto): DatosPuntoRecogida {
  * con cursor de a `tamanoPaginaInicial` (250 por defecto), reintenta con
  * espera exponencial ante `THROTTLED` y reduce el tamaño de página a la
  * mitad si la Admin API rechaza la consulta por costo máximo (FR-013).
+ * Devuelve las métricas de la carga (páginas, costo, reintentos) para el
+ * evento `puntos.carga`; si falla, lanza `FuentePuntosError` con los
+ * reintentos consumidos y el error original como `cause`.
  */
 export class FuentePuntosShopify implements FuentePuntos {
   constructor(
@@ -94,20 +102,32 @@ export class FuentePuntosShopify implements FuentePuntos {
     private readonly esperar: (milisegundos: number) => Promise<void> = esperarReal,
   ) {}
 
-  async obtenerTodos(): Promise<readonly DatosPuntoRecogida[]> {
-    const resultado: DatosPuntoRecogida[] = [];
+  async obtenerTodos(): Promise<ResultadoFuentePuntos> {
+    const puntos: DatosPuntoRecogida[] = [];
+    const contador = { reintentos: 0 };
     let cursor: string | null = null;
     let tamanoPagina = this.tamanoPaginaInicial;
+    let paginas = 0;
+    let costo = 0;
 
     for (;;) {
-      const { pagina, tamanoPaginaUsado } = await this.pedirPaginaConReintentos(
-        cursor,
-        tamanoPagina,
-      );
+      let resultado: { pagina: PaginaPuntos; tamanoPaginaUsado: number };
+      try {
+        resultado = await this.pedirPaginaConReintentos(cursor, tamanoPagina, contador);
+      } catch (error) {
+        throw new FuentePuntosError(
+          error instanceof Error ? error.message : String(error),
+          contador.reintentos,
+          { cause: error },
+        );
+      }
+      const { pagina, tamanoPaginaUsado } = resultado;
       tamanoPagina = tamanoPaginaUsado;
-      resultado.push(...pagina.nodos.map(mapearNodoAPuntoCrudo));
+      paginas += 1;
+      costo += pagina.costo;
+      puntos.push(...pagina.nodos.map(mapearNodoAPuntoCrudo));
       if (!pagina.hasNextPage) {
-        return resultado;
+        return { puntos, metricas: { paginas, costo, reintentos: contador.reintentos } };
       }
       cursor = pagina.endCursor;
     }
@@ -116,6 +136,7 @@ export class FuentePuntosShopify implements FuentePuntos {
   private async pedirPaginaConReintentos(
     cursor: string | null,
     tamanoPagina: number,
+    contador: { reintentos: number },
     intento = 0,
   ): Promise<{ pagina: PaginaPuntos; tamanoPaginaUsado: number }> {
     try {
@@ -128,13 +149,15 @@ export class FuentePuntosShopify implements FuentePuntos {
           tamanoPaginaAnterior: tamanoPagina,
           tamanoPaginaNuevo: tamanoReducido,
         });
-        return this.pedirPaginaConReintentos(cursor, tamanoReducido, intento);
+        contador.reintentos += 1;
+        return this.pedirPaginaConReintentos(cursor, tamanoReducido, contador, intento);
       }
       if (esErrorDeThrottling(error) && intento < INTENTOS_MAXIMOS_THROTTLING - 1) {
         const espera = ESPERA_BASE_MS * 2 ** intento;
         this.registro.warn("puntos.throttled", { intento: intento + 1, esperaMs: espera });
         await this.esperar(espera);
-        return this.pedirPaginaConReintentos(cursor, tamanoPagina, intento + 1);
+        contador.reintentos += 1;
+        return this.pedirPaginaConReintentos(cursor, tamanoPagina, contador, intento + 1);
       }
       throw error;
     }
@@ -150,17 +173,13 @@ export class FuentePuntosShopify implements FuentePuntos {
       throw new Error("Respuesta inesperada de la Admin API al listar puntos de recogida.");
     }
 
-    if (cuerpo.extensions?.cost) {
-      this.registro.debug("puntos.costo_consulta", {
-        requestedQueryCost: cuerpo.extensions.cost.requestedQueryCost,
-        actualQueryCost: cuerpo.extensions.cost.actualQueryCost,
-      });
-    }
+    const costoInformado = cuerpo.extensions?.cost;
 
     return {
       nodos: conexion.nodes,
       hasNextPage: conexion.pageInfo.hasNextPage,
       endCursor: conexion.pageInfo.endCursor,
+      costo: costoInformado?.actualQueryCost ?? costoInformado?.requestedQueryCost ?? 0,
     };
   }
 }

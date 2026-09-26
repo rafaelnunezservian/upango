@@ -6,6 +6,8 @@ export interface OpcionesInsertadorWidgets {
   readonly selectorInsercion: string;
   readonly selectorContextosCompactos: string;
   readonly textoEnlaceCompacto: string;
+  /** `href` del enlace compacto: `{raíz de rutas}cart`, con el prefijo de idioma (EC-17, EC-24). */
+  readonly rutaCarrito: string;
   /** Configurado solo si `modo_demo` está activo en el editor de temas (§17.6, FR-033). */
   readonly interruptorDemo?: {
     readonly etiqueta: string;
@@ -24,9 +26,10 @@ interface Grupo {
 
 /**
  * Agrupa los botones de checkout visibles por su contenedor e inserta un
- * widget (o, en contextos compactos, solo un enlace a `/cart`, EC-24) por
- * grupo. Un `MutationObserver` con debounce de 100 ms reinserta tras un
- * re-render del tema (§17.4).
+ * widget (o, en contextos compactos, solo un enlace al carrito, EC-24) por
+ * grupo. Si ningún botón coincide, lo inserta en la posición del embed
+ * (`.pr-embed-raiz`, EC-15). Un `MutationObserver` con debounce de 100 ms
+ * reinserta tras un re-render del tema (§17.4).
  */
 export class InsertadorWidgets implements VistaSelector {
   private readonly hosts = new Map<Element, { host: HTMLElement; compacto: boolean }>();
@@ -137,6 +140,11 @@ export class InsertadorWidgets implements VistaSelector {
         compacto: boton.closest(this.opciones.selectorContextosCompactos) !== null,
       });
     }
+    // EC-15: tema sin botón de checkout reconocible → widget junto al embed.
+    const raiz = grupos.length ? null : document.querySelector(".pr-embed-raiz");
+    if (raiz) {
+      grupos.push({ contenedor: raiz, primerBoton: raiz, compacto: false });
+    }
     return grupos;
   }
 
@@ -146,7 +154,7 @@ export class InsertadorWidgets implements VistaSelector {
 
     if (grupo.compacto) {
       const enlace = document.createElement("a");
-      enlace.href = "/cart";
+      enlace.href = this.opciones.rutaCarrito;
       enlace.className = "pr-enlace-compacto";
       enlace.textContent = this.opciones.textoEnlaceCompacto;
       host.append(enlace);

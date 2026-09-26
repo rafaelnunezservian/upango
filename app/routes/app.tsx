@@ -3,13 +3,16 @@ import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 
+import { contenedor } from "../composition/contenedor.server";
+import { es } from "../i18n/es.js";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
 
-  // eslint-disable-next-line no-undef
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  // La API key sale de la configuración validada al arrancar (constitución V,
+  // §15.5), no de `process.env` directo.
+  return { apiKey: contenedor.config.shopifyApiKey };
 };
 
 export default function App() {
@@ -18,8 +21,7 @@ export default function App() {
   return (
     <AppProvider apiKey={apiKey}>
       <s-app-nav>
-        <s-link href="/app">Home</s-link>
-        <s-link href="/app/additional">Additional page</s-link>
+        <s-link href="/app">{es.navegacion.inicio}</s-link>
       </s-app-nav>
       <Outlet />
     </AppProvider>
